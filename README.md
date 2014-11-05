@@ -8,8 +8,10 @@ About the Open Library
 
 [Centre For Learning](http://cfl.in) (CFL) is a school near Bangalore, India, which has this thing called the [Open Library](http://library.cfl.in/about/). Basically, **anyone can come in and borrow books** (the librarian makes accounts for all the students, staff and guests) and enter their borrowings in the library's computer. To make sure that the book is actually coming back, users have to enter the book's accession number, which will be written inside the book. The idea is that everyone takes responsibility for the books, instead of having one librarian doing all the managing.
 
-Now, the program currently being used for managing the library is very old and buggy. So I've been asked to make a new one.
-This is the first proper program I'm making, so the end result may be a program that is very *new* and buggy. 
+The program currently being used for the library management is called Merlin, and it is being used in several schools as well as CFL.
+
+Now, the Merlin application code is very old and buggy, so I've been asked to make a new one.
+But, since this is the first proper program I'm making, the end result may be a program that's very *new* and buggy. 
 
 I'm putting this program on GitHub in the hope that other people may decide to help and improve the code. And maybe if it gets enough attention more people will start setting up Open Libraries...
 
