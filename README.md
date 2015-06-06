@@ -22,4 +22,7 @@ The Growlin Interface
 
 Right now I'm planning to make two interfaces for Growlin: one is the user's interface where they manage their borrowings, and the other is the admin interface where the librarian can add new books, etc.
 
-Currently I'm planning to use the `peewee` library for the database, so that it can support multiple engines, and Python's `Gtk` library for the interface. The library computer runs Windows but I'm running Ubuntu, so I'll try to make the program as portable as possible.
+Project layout
+==============
+
+The project is going to be run on Django. For developing, the database is going to be SQLite, but in the actual one it'll be replaced with MySQL or something. The Django project is in the growlinserv folder, in case we need the rest of the space for other files.
