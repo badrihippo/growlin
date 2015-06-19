@@ -1,6 +1,8 @@
 import peewee as pw
 from playhouse.shortcuts import ManyToManyField
-from flask.ext.security import UserMixin, RoleMixin
+from flask.ext.login import UserMixin
+#from flask.ext.security import UserMixin, RoleMixin
+from wtfpeewee.orm import model_form
 
 db = pw.SqliteDatabase('growlin.db')
 
@@ -170,10 +172,10 @@ class Group(BaseModel):
         return self.name
 
 class User(BaseModel, UserMixin):
-    refnum = pw.CharField(null=True)
-    username = pw.CharField(32, unique=True)
+    username = pw.CharField(32, primary_key=True)
     password = pw.CharField(512, null=True)
     group = pw.ForeignKeyField(Group)
+    refnum = pw.CharField(null=True)
     name = pw.CharField(64)
     email = pw.CharField(64, null=True)
     phone = pw.CharField(max_length=16, null=True)
@@ -191,7 +193,7 @@ class User(BaseModel, UserMixin):
         # Do the real save
         super(User, self).save(*args, **kwargs)
     
-class Role(BaseModel, RoleMixin):
+class Role(BaseModel):
     name = pw.CharField(unique=True)
     description = pw.TextField(null=True)
 
@@ -207,8 +209,9 @@ class UserRoles(BaseModel):
     
 class Borrowing(BaseModel):
     '''Tracks one instance of an accessed item getting borrowed'''
+    # TODO: Make separate CurrentBorrowing for quicker searching
     accession = pw.IntegerField() # FK to Accession
-    #user = pw.ForeignKeyField(Person, db_constraint=False)
+    user = pw.ForeignKeyField(User)
     group = pw.ForeignKeyField(Group)
     borrow_date = pw.DateTimeField()
     renew_times = pw.IntegerField(default=0)
@@ -225,4 +228,3 @@ class Borrowing(BaseModel):
 def create_tables():
     db.connect()
     db.create_tables([User, Relationship, Message])
-
