@@ -20,9 +20,20 @@ The old software was called "Merlin", hence I decided to name the new one after 
 The Growlin Interface
 =====================
 
-Right now I'm planning to make two interfaces for Growlin: one is the user's interface where they manage their borrowings, and the other is the admin interface where the librarian can add new books, etc.
+Right now I'm planning to make two interfaces for Growlin: one is the user's interface where they manage their borrowings, and the other is the admin interface where the librarian can add new books, etc. Later, I also hope to implement plugin functionality
+so that different libraries can enable/disable different plugins as required.
 
 Project layout
 ==============
 
-The project is going to be run on Django. For developing, the database is going to be SQLite, but in the actual one it'll be replaced with MySQL or something. The Django project is in the growlinserv folder, in case we need the rest of the space for other files.
+The project is going to be developed as a [Flask](http://flask.pocoo.org) webapp, with the [peewee](http://peewee.readthedocs.org) ORM for managing the database. For developing, the database is going to be SQLite, but in the actual one it'll be replaced with MySQL or something. The Flask project is in the `growlinflask` folder, in case we need the rest of the space for other files.
+
+To set up the project, `cd` to to the `growlinflask` directory, and then install dependencies:
+
+    pip install -r requirements.txt
+
+Once everything is installed, you can run the server using:
+
+    python growlin.py
+
+A development server will be started, which you can access by pointing your browser to `localhost:5000`.
