@@ -208,9 +208,12 @@ class UserRoles(BaseModel):
 
     
 class Borrowing(BaseModel):
-    '''Tracks one instance of an accessed item getting borrowed'''
-    # TODO: Make separate CurrentBorrowing for quicker searching
-    accession = pw.IntegerField() # FK to Accession
+    '''
+    Tracks one instance of an accessed item getting borrowed.
+    This model may also store redundant information such as title, in
+    order to make lookups faster.
+    '''
+    accession = pw.ForeignKeyField(Copy)
     user = pw.ForeignKeyField(User)
     group = pw.ForeignKeyField(Group)
     borrow_date = pw.DateTimeField()
@@ -224,7 +227,30 @@ class Borrowing(BaseModel):
             'user': self.user,
             'group': self.group,
             'date': self.borrow_date}
+            
+class PastBorrowing(BaseModel):
+    '''
+    Tracks past instances of borrowing. This model is separate from
+    the Borrowing model so that information can be stored in a more
+    concise way, as lookups are not going to be made as frequently as
+    in the Borrowing model.
+    '''
+    accession = pw.IntegerField() # Non-enforced FK to Accession
+    user = pw.ForeignKeyField(User)
+    group = pw.ForeignKeyField(Group)
+    borrow_date = pw.DateTimeField()
+    return_date = pw.DateTimeField(null=True)
+    def __unicode__(self):
+        return '%(acc)s by %(user)s (%(group)s) on %(date)s' % {
+            'acc': self.accession,
+            'user': self.user,
+            'group': self.group,
+            'date': self.borrow_date}
 
 def create_tables():
     db.connect()
-    db.create_tables([User, Relationship, Message])
+    db.create_tables([PublishPlace, Publisher, Currency])
+    db.create_tables([Author, Location,])
+    db.create_tables(PublicationType, Publication, Copy])
+    db.create_tables([Group, User, Role, UserRoles])
+    db.create_tables([Borrowing, PastBorrowing])
