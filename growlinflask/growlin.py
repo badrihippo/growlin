@@ -53,6 +53,7 @@ def login():
     # client-side form data. For example, WTForms is a library that will
     # handle this for us.
     form = LoginForm()
+    group_list = Group.select()
     if form.validate_on_submit():
         # Login and validate the user.
         user = load_user(form.username.data)
@@ -74,7 +75,7 @@ def login():
 	
 	        return redirect(next or url_for('home'))
 	# Default to returning login page        
-    return render_template('login.htm', form=form)
+    return render_template('login.htm', form=form, group_list=group_list)
 
 @app.route('/logout')
 @login_required
