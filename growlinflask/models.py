@@ -115,7 +115,7 @@ class Copy(BaseModel):
     classes like Book, Periodical, etc.; this model holds only the info
     common to all types of accession
     '''
-    accession = pw.IntegerField(primary_key=True)
+    accession = pw.IntegerField()
     item = pw.ForeignKeyField(Publication)
     
     pub_name = pw.ForeignKeyField(Publisher, 
