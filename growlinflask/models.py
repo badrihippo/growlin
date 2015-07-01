@@ -174,7 +174,7 @@ class Group(BaseModel):
 class User(BaseModel, UserMixin):
     username = pw.CharField(32, primary_key=True)
     password = pw.CharField(512, null=True)
-    group = pw.ForeignKeyField(Group)
+    group = pw.ForeignKeyField(Group, related_name='users')
     refnum = pw.CharField(null=True)
     name = pw.CharField(64)
     email = pw.CharField(64, null=True)
