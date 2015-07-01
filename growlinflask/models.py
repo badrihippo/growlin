@@ -251,6 +251,6 @@ def create_tables():
     db.connect()
     db.create_tables([PublishPlace, Publisher, Currency])
     db.create_tables([Author, Location,])
-    db.create_tables(PublicationType, Publication, Copy])
+    db.create_tables([PublicationType, Publication, Copy])
     db.create_tables([Group, User, Role, UserRoles])
     db.create_tables([Borrowing, PastBorrowing])
