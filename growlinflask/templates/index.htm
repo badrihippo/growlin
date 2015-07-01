@@ -1,0 +1,11 @@
+{% extends 'base.htm' %}
+{% block title %}Growlin{% endblock %}
+
+{% block content %}
+<h1>Welcome to Growlin</h1>
+{% if current_user.is_authenticated() %}
+<p>Welcome, {{current_user.name}}! <a href="{{url_for('logout')}}">Click here</a> to sign out.</p>
+{% else %}
+<p>Welcome to Growlin! <a href="{{url_for('login')}}">Click here</a> to sign in.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.htm' %}
+{% block title %}Login | Growlin{% endblock %}
+
+{% block content %}
+<h1>Please login...</h1>
+<form id="login_form" method="post" action={{url_for('login')}}>
+  {{form.csrf_token}}
+  {% if form.errors %}
+  <ul>
+		{% for field_name, field_errors in form.errors|dictsort if field_errors %}
+      {% for error in field_errors %}
+        <li>{{error}}</li>
+      {% endfor %}
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <ul>
+    {% for group in group_list %}
+    <li>
+      <b>{{group.name}}</b>
+      <ul>
+        {% for user in group.users %}
+        <a href="javascript:setUsername('{{user.username}}', {% if user.password and user.password != "" %}true{% else %}false{% endif %});"><li>{{user.name}}</li></a>
+        {% endfor %}
+      </ul>
+    </li>
+    {% endfor %}
+  </ul>
+  
+  <ul>
+    <li>{{form.username.label}} {{form.username}}</li>
+    <li>{{form.password.label}} {{form.password}}</li>
+  </ul>
+  <input type="submit" class="btn btn-default" value="Login" />
+</form>
+
+<script type="text/javascript">
+  function setUsername(username, pass=True) {
+    $('#{{form.username.id}}').val(username);
+    if (pass == true) {
+      $('#{{form.password.id}}').show();
+    } else {
+      $('#{{form.password.id}}').hide();
+      $('#login_form').submit();
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,6 @@
+Flask
+peewee
+Flask-Admin
+Flask_Security
+flask-wtf
+wtf-peewee
