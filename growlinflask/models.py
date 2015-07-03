@@ -254,3 +254,30 @@ def create_tables():
     db.create_tables([PublicationType, Publication, Copy])
     db.create_tables([Group, User, Role, UserRoles])
     db.create_tables([Borrowing, PastBorrowing])
+
+def create_test_data():
+    print 'Generating test data...'
+    models = (Group, Role, User, UserRoles, PublishPlace, Publisher, Currency, Author, Location, PublicationType, Publication, Copy, Borrowing, PastBorrowing)
+    for Model in models:
+        Model.drop_table(fail_silently=True)
+        Model.create_table(fail_silently=True)
+	
+    g = Group.create(name='Earth')
+    User.create(name='Moon', password='pass', group=g)
+
+    g = Group.create(name='Mars')
+    User.create(name='Phobos', group=g)
+    User.create(name='Deimos', group=g)
+   
+    g = Group.create(name='Jupiter')
+    User.create(name='Io', group=g)
+    User.create(name='Europa', group=g)
+    User.create(name='Ganymede', group=g)
+    User.create(name='Callisto', group=g)
+
+    g = Group.create(name='Saturn')
+    User.create(name='Titan', group=g)
+    User.create(name='Enceladus', group=g)
+    User.create(name='Tethys', group=g)
+    User.create(name='Mimas', group=g)
+    User.create(name='Dione', group=g)

@@ -27,32 +27,10 @@ def load_user(username):
 # Setup Flask-Principal
 principals = Principal(app)
 
-# Create a user to test with
-@app.before_first_request
-def create_test_data():
-    for Model in (Group, Role, User, UserRoles):
-        Model.drop_table(fail_silently=True)
-        Model.create_table(fail_silently=True)
-	
-    g = Group.create(name='Earth')
-    User.create(name='Moon', password='pass', group=g)
+# Load test data from models.py
+create_test_data = app.before_first_request(create_test_data)
 
-    g = Group.create(name='Mars')
-    User.create(name='Phobos', group=g)
-    User.create(name='Deimos', group=g)
-   
-    g = Group.create(name='Jupiter')
-    User.create(name='Io', group=g)
-    User.create(name='Europa', group=g)
-    User.create(name='Ganymede', group=g)
-    User.create(name='Callisto', group=g)
 
-    g = Group.create(name='Saturn')
-    User.create(name='Titan', group=g)
-    User.create(name='Enceladus', group=g)
-    User.create(name='Tethys', group=g)
-    User.create(name='Mimas', group=g)
-    User.create(name='Dione', group=g)
 class LoginForm(Form):
     username = wtf.TextField('Username')
     password = wtf.PasswordField('Password')
