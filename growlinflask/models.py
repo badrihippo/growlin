@@ -53,7 +53,9 @@ class Location(BaseModel):
         
 class PublicationType(BaseModel):
     '''Type of Publication: display settings may change based on type'''
-    itype = pw.CharField(primary_key=True)
+    itype = pw.CharField(primary_key=True, verbose_name='Type')
+    def __unicode__(self):
+        return self.itype
 
 class Publication(BaseModel):
     '''
