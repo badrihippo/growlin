@@ -5,6 +5,7 @@ from flask.ext.login import LoginManager, login_required, login_user, logout_use
 from flask.ext.principal import Principal, Permission, RoleNeed
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.peewee.view import ModelView
+from wtfpeewee.orm import model_form
 #from flask.ext.security import Security, PeeweeUserDatastore, login_required
 from models import *
 
@@ -98,6 +99,9 @@ class AdminRegistry(BaseView):
 class AdminModelUser(ModelView):
     can_create = True
     column_list = ('username', 'name', 'group', 'active')
+
+    def get_form(self):
+	return model_form(User, allow_pk=True)
 
 admin.add_view(ModelView(Publication, name='Publications', category='Registry'))
 admin.add_view(ModelView(Copy, name='Copies', category='Registry'))
