@@ -28,7 +28,7 @@ def load_user(username):
 principals = Principal(app)
 
 # Load test data from models.py
-create_test_data = app.before_first_request(create_test_data)
+#create_test_data = app.before_first_request(create_test_data)
 
 
 class LoginForm(Form):
