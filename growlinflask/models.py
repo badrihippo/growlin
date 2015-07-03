@@ -281,3 +281,7 @@ def create_test_data():
     User.create(name='Tethys', group=g)
     User.create(name='Mimas', group=g)
     User.create(name='Dione', group=g)
+
+    book_type = PublicationType.create(itype='book')
+
+    loc_main = Location.create(loc_name='Main')
