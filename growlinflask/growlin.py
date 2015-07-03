@@ -3,7 +3,8 @@ from flask_wtf import Form
 import wtforms as wtf
 from flask.ext.login import LoginManager, login_required, login_user, logout_user
 from flask.ext.principal import Principal, Permission, RoleNeed
-from flask.ext.admin import Admin
+from flask_admin import Admin, BaseView, expose
+from flask_admin.contrib.peewee.view import ModelView
 #from flask.ext.security import Security, PeeweeUserDatastore, login_required
 from models import *
 
@@ -84,5 +85,34 @@ def home():
 @app.route('/user/<username>/')
 def user(username):
     return render_template('base.htm', username=username)
+
+# Admin interface
+class AdminRegistry(BaseView):
+    @expose('/')
+    def index(self):
+	return self.render('admin/registry_index.htm')
+    def is_accessible(self):
+	#return current_user.is_authenticated() # add permission check
+	return True
+
+class AdminModelUser(ModelView):
+    can_create = True
+    column_list = ('username', 'name', 'group', 'active')
+
+admin.add_view(ModelView(Publication, name='Publications', category='Registry'))
+admin.add_view(ModelView(Copy, name='Copies', category='Registry'))
+
+admin.add_view(ModelView(Publisher, name='Publishers', category='Metadata'))
+admin.add_view(ModelView(PublishPlace, name='Publish locations', category='Metadata'))
+admin.add_view(ModelView(PublicationType, name='Publication Types', category='Metadata'))
+
+admin.add_view(ModelView(Location, name='Locations'))
+
+
+
+admin.add_view(AdminModelUser(User, name='Users', category='Accounts'))
+admin.add_view(ModelView(Group, name='Groups', category='Accounts'))
+    
+
 if __name__ == '__main__':
     app.run()
