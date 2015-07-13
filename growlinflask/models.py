@@ -11,19 +11,20 @@ class BaseModel(pw.Model):
         database = db
 
 class PublishPlace(BaseModel):
-    place = pw.CharField(max_length=512, primary_key=True)
+    name = pw.CharField(max_length=512, unique=True)
     def __unicode__(self):
         return '%(place)s' % {'place': self.place}
 
 class Publisher(BaseModel):
-    name = pw.CharField(max_length=256, primary_key=True)
+    name = pw.CharField(max_length=256)
     address = pw.TextField(null=True)
     imprint_of = pw.ForeignKeyField('self', null=True)
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
 class Currency(BaseModel):
-    name = pw.CharField(max_length=32, primary_key=True)
+    name = pw.CharField(max_length=32, unique=True)
+    symbol = pw.CharField(max_length=4)
     conversion_factor = pw.FloatField(default=1)    
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
@@ -33,7 +34,7 @@ class Author(BaseModel):
     #id = pw.IntegerField()
     name = pw.CharField(max_length=128)
     is_pseudonym = pw.BooleanField(default=False)
-    author_sort = pw.CharField(max_length=128, default='auto')
+    author_sort = pw.CharField(max_length=128, default='auto', index=True )
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
     def save(self, *args, **kwargs):
@@ -46,14 +47,15 @@ class Author(BaseModel):
         super(Author, self).save(*args, **kwargs)
 
 class Location(BaseModel):
-    loc_name = pw.CharField(max_length=256, primary_key=True)
+    name = pw.CharField(max_length=256, unique=True)
     prevent_borrowing = pw.BooleanField(default=False)
     def __unicode__(self):
         return '%(name)s' % {'name': self.loc_name}
         
 class PublicationType(BaseModel):
     '''Type of Publication: display settings may change based on type'''
-    itype = pw.CharField(primary_key=True, verbose_name='Type')
+    name = pw.CharField(unique=True)
+
     def __unicode__(self):
         return self.itype
 
@@ -69,7 +71,7 @@ class Publication(BaseModel):
         help_text='Short version of title, for displaying in lists.\
         Set to "auto" to auto-set (recommended for periodicals)',
         default='auto')
-    itype = pw.ForeignKeyField(PublicationType, verbose_name='Item type')
+    pubtype = pw.ForeignKeyField(PublicationType, verbose_name='Item type')
     mag_cover = pw.CharField(verbose_name='Cover content', 
         max_length=512,
         help_text='Cover article/image/story (for magazines, etc.)',
@@ -117,7 +119,7 @@ class Copy(BaseModel):
     classes like Book, Periodical, etc.; this model holds only the info
     common to all types of accession
     '''
-    accession = pw.IntegerField()
+    accession = pw.IntegerField(unique=True)
     item = pw.ForeignKeyField(Publication)
     
     pub_name = pw.ForeignKeyField(Publisher, 
@@ -168,13 +170,13 @@ class Person(User):
 class Group(BaseModel):
     '''Describes Group (eg. Class) for a User to belong to'''
     position = pw.IntegerField(verbose_name='Ordering position', default=0)
-    name = pw.CharField(max_length=128, primary_key=True)
+    name = pw.CharField(max_length=128, index=True)
     visible = pw.BooleanField(default=True)
     def __unicode__(self):
         return self.name
 
 class User(BaseModel, UserMixin):
-    username = pw.CharField(32, primary_key=True)
+    username = pw.CharField(32, unique=True)
     password = pw.CharField(512, null=True)
     group = pw.ForeignKeyField(Group, related_name='users')
     refnum = pw.CharField(null=True)
@@ -220,9 +222,7 @@ class Borrowing(BaseModel):
     group = pw.ForeignKeyField(Group)
     borrow_date = pw.DateTimeField()
     renew_times = pw.IntegerField(default=0)
-    is_returned = pw.BooleanField(default=False)
     is_longterm = pw.BooleanField(default=False)
-    return_date = pw.DateTimeField(null=True)
     def __unicode__(self):
         return '%(acc)s by %(user)s (%(group)s) on %(date)s' % {
             'acc': self.accession,
@@ -241,7 +241,7 @@ class PastBorrowing(BaseModel):
     user = pw.ForeignKeyField(User)
     group = pw.ForeignKeyField(Group)
     borrow_date = pw.DateTimeField()
-    return_date = pw.DateTimeField(null=True)
+    return_date = pw.DateTimeField()
     def __unicode__(self):
         return '%(acc)s by %(user)s (%(group)s) on %(date)s' % {
             'acc': self.accession,
