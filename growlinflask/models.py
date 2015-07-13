@@ -11,19 +11,20 @@ class BaseModel(pw.Model):
         database = db
 
 class PublishPlace(BaseModel):
-    place = pw.CharField(max_length=512, primary_key=True)
+    name = pw.CharField(max_length=512, unique=True)
     def __unicode__(self):
         return '%(place)s' % {'place': self.place}
 
 class Publisher(BaseModel):
-    name = pw.CharField(max_length=256, primary_key=True)
+    name = pw.CharField(max_length=256)
     address = pw.TextField(null=True)
     imprint_of = pw.ForeignKeyField('self', null=True)
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
 class Currency(BaseModel):
-    name = pw.CharField(max_length=32)
+    name = pw.CharField(max_length=32, unique=True)
+    symbol = pw.CharField(max_length=4)
     conversion_factor = pw.FloatField(default=1)    
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
@@ -46,14 +47,14 @@ class Author(BaseModel):
         super(Author, self).save(*args, **kwargs)
 
 class Location(BaseModel):
-    loc_name = pw.CharField(max_length=256, primary_key=True)
+    name = pw.CharField(max_length=256, unique=True)
     prevent_borrowing = pw.BooleanField(default=False)
     def __unicode__(self):
         return '%(name)s' % {'name': self.loc_name}
         
 class PublicationType(BaseModel):
     '''Type of Publication: display settings may change based on type'''
-    itype = pw.CharField(primary_key=True)
+    name = pw.CharField(unique=True)
 
 class Publication(BaseModel):
     '''
@@ -67,7 +68,7 @@ class Publication(BaseModel):
         help_text='Short version of title, for displaying in lists.\
         Set to "auto" to auto-set (recommended for periodicals)',
         default='auto')
-    itype = pw.ForeignKeyField(PublicationType, verbose_name='Item type')
+    pubtype = pw.ForeignKeyField(PublicationType, verbose_name='Item type')
     mag_cover = pw.CharField(verbose_name='Cover content', 
         max_length=512,
         help_text='Cover article/image/story (for magazines, etc.)',
