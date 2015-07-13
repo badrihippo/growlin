@@ -13,7 +13,7 @@ class BaseModel(pw.Model):
 class PublishPlace(BaseModel):
     name = pw.CharField(max_length=512, unique=True)
     def __unicode__(self):
-        return '%(place)s' % {'place': self.place}
+        return '%(name)s' % {'name': self.name}
 
 class Publisher(BaseModel):
     name = pw.CharField(max_length=256)
@@ -50,11 +50,13 @@ class Location(BaseModel):
     name = pw.CharField(max_length=256, unique=True)
     prevent_borrowing = pw.BooleanField(default=False)
     def __unicode__(self):
-        return '%(name)s' % {'name': self.loc_name}
+        return '%(name)s' % {'name': self.name}
         
 class PublicationType(BaseModel):
     '''Type of Publication: display settings may change based on type'''
     name = pw.CharField(unique=True)
+    def __unicode__(self):
+        return '%(name)s' % {'name': self.name}
 
 class Publication(BaseModel):
     '''
@@ -170,7 +172,7 @@ class Group(BaseModel):
     name = pw.CharField(max_length=128, index=True)
     visible = pw.BooleanField(default=True)
     def __unicode__(self):
-        return self.name
+        return '%(name)s' % {'name': self.name}
 
 class User(BaseModel, UserMixin):
     username = pw.CharField(32, unique=True)
@@ -197,6 +199,9 @@ class User(BaseModel, UserMixin):
 class Role(BaseModel):
     name = pw.CharField(unique=True)
     description = pw.TextField(null=True)
+
+    def __unicode__(self):
+        return '%(name)s' % {'name': self.name}
 
 class UserRoles(BaseModel):
     # Because peewee does not come with built-in many-to-many
