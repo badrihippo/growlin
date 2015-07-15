@@ -58,6 +58,9 @@ class PublicationType(BaseModel):
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
+    def __unicode__(self):
+        return self.itype
+
 class Publication(BaseModel):
     '''
     Holds data for items in the Accession Register. Each of these items can 
@@ -285,3 +288,7 @@ def create_test_data():
     User.create(name='Tethys', group=g)
     User.create(name='Mimas', group=g)
     User.create(name='Dione', group=g)
+
+    book_type = PublicationType.create(itype='book')
+
+    loc_main = Location.create(loc_name='Main')
