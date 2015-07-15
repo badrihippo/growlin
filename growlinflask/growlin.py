@@ -100,9 +100,6 @@ class AdminModelUser(ModelView):
     can_create = True
     column_list = ('username', 'name', 'group', 'active')
 
-    def get_form(self):
-	return model_form(User, allow_pk=True)
-
 admin.add_view(ModelView(Publication, name='Publications', category='Registry'))
 admin.add_view(ModelView(Copy, name='Copies', category='Registry'))
 
