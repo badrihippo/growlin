@@ -109,14 +109,17 @@ admin.add_view(ModelView(Copy, name='Copies', category='Registry'))
 
 admin.add_view(ModelView(Publisher, name='Publishers', category='Metadata'))
 admin.add_view(ModelView(PublishPlace, name='Publish locations', category='Metadata'))
-admin.add_view(ModelView(PublicationType, name='Publication Types', category='Metadata'))
 
 admin.add_view(ModelView(Location, name='Locations'))
 
-
-
 admin.add_view(AdminModelUser(User, name='Users', category='Accounts'))
 admin.add_view(ModelView(Group, name='Groups', category='Accounts'))
+
+# Publication and Copy extra data
+
+for m in all_pubtypes.union(all_pubcopies):
+    # TODO: Remove reference to private _meta property!
+    admin.add_view(ModelView(m, name=m._meta.name, category='Extra Publication Data'))
     
 
 if __name__ == '__main__':
