@@ -18,11 +18,15 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 @login_manager.user_loader
-def load_user(username):
+def load_user(userid=None, username=None):
     try:
-        return User.get(User.username == username)
-    except:
-		return None
+        if userid is not None:
+            user = User.get(User.id == userid)
+        elif username is not None:
+	    user = User.get(User.username == username)
+    except pw.DoesNotExist:
+	return None
+    return user
     
 # Setup Flask-Principal
 principals = Principal(app)
@@ -48,7 +52,7 @@ def login():
     group_list = Group.select()
     if form.validate_on_submit():
         # Login and validate the user.
-        user = load_user(form.username.data)
+        user = load_user(username=form.username.data)
         if (not user) or (user.password and user.password != form.password.data):
             msg = 'Invalid username or password'
             if form.errors.has_key('password'):
@@ -56,7 +60,7 @@ def login():
             else:
                 form.errors['password'] = [msg]
         else:
-			# All OK. Log in the user.
+		# All OK. Log in the user.
 	        login_user(user)
 	
 	        flash('Logged in successfully.')
