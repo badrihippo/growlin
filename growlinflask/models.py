@@ -63,7 +63,7 @@ class Publication(BaseModel):
         help_text='Full title of book, or name of Magazine/Periodical')
     display_title = pw.CharField(max_length=256,
         help_text='Short version of title, for displaying in lists.\
-        Set to "auto" to auto-set (recommended for periodicals)',
+        Leave blank or set to "auto" to auto-set',
         default='auto')
     pubtype = pw.CharField(null=True)
     pubdata_id = pw.IntegerField(null=True)

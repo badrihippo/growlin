@@ -4,6 +4,7 @@ import wtforms as wtf
 from flask.ext.login import LoginManager, login_required, login_user, logout_user
 from flask.ext.principal import Principal, Permission, RoleNeed
 from flask_admin import Admin, BaseView, expose
+from flask_admin.form import rules
 from flask_admin.contrib.peewee.view import ModelView
 from wtfpeewee.orm import model_form
 #from flask.ext.security import Security, PeeweeUserDatastore, login_required
@@ -106,9 +107,13 @@ class AdminModelUser(ModelView):
 
 
 class AdminModelPublication(ModelView):
+    form_create_rules = ('title', 'display_title', 'call_no', 'keywords', 'comments', 'identifier', 'copies')
+    form_excluded_columns = ['pubtype', 'pubdata_id']
+    edit_modal = True
     inline_models = (Copy,)
 
 class AdminModelCopy(ModelView):
+    form_excluded_columns = ['copydata_type', 'copydata_id']
     form_ajax_refs = {
 	'item': {
 	    'fields': ['title', 'call_no'],
@@ -127,7 +132,7 @@ admin.add_view(AdminModelCopy(Copy, name='Copies', category='Registry'))
 admin.add_view(ModelView(Publisher, name='Publishers', category='Metadata'))
 admin.add_view(ModelView(PublishPlace, name='Publish locations', category='Metadata'))
 
-admin.add_view(ModelView(Location, name='Locations'))
+admin.add_view(ModelView(Location, name='Places'))
 
 admin.add_view(AdminModelUser(User, name='Users', category='Accounts'))
 admin.add_view(ModelView(Group, name='Groups', category='Accounts'))
