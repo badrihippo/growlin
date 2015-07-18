@@ -101,7 +101,7 @@ class Copy(BaseModel):
     common to all types of accession
     '''
     accession = pw.IntegerField(unique=True)
-    item = pw.ForeignKeyField(Publication)
+    item = pw.ForeignKeyField(Publication, related_name='copies')
 
     copydata_type = pw.CharField(null=True)
     copydata_id = pw.CharField(null=True)

@@ -104,8 +104,27 @@ class AdminModelUser(ModelView):
     can_create = True
     column_list = ('username', 'name', 'group', 'active')
 
-admin.add_view(ModelView(Publication, name='Publications', category='Registry'))
-admin.add_view(ModelView(Copy, name='Copies', category='Registry'))
+
+class AdminModelPublication(ModelView):
+    form_ajax_refs = {
+        'location': {
+	    'fields': ['name'],
+	    'page_size': 5
+	},
+    }
+    inline_models = (Copy,)
+
+class AdminModelCopy(ModelView):
+    form_ajax_refs = {
+	'item': {
+	    'fields': ['title', 'call_no'],
+	    'page_size': 10
+	},
+    }
+
+
+admin.add_view(AdminModelPublication(Publication, name='Publications', category='Registry'))
+admin.add_view(AdminModelCopy(Copy, name='Copies', category='Registry'))
 
 admin.add_view(ModelView(Publisher, name='Publishers', category='Metadata'))
 admin.add_view(ModelView(PublishPlace, name='Publish locations', category='Metadata'))
