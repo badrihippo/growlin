@@ -124,6 +124,18 @@ class AdminModelCopy(ModelView):
 	    'page_size': 5
 	},
     }
+class AdminModelBorrowing(ModelView):
+    form_excluded_columns = ['copydata_type', 'copydata_id']
+    form_ajax_refs = {
+	'user': {
+	    'fields': ['refnum', 'username', 'name', 'email'],
+	    'page_size': 10
+	},
+	'group': {
+	    'fields': ['name'],
+	    'page_size': 5,
+	},
+    }
 
 
 admin.add_view(AdminModelPublication(Publication, name='Publications', category='Registry'))
@@ -136,6 +148,8 @@ admin.add_view(ModelView(Location, name='Places'))
 
 admin.add_view(AdminModelUser(User, name='Users', category='Accounts'))
 admin.add_view(ModelView(Group, name='Groups', category='Accounts'))
+admin.add_view(AdminModelBorrowing(Borrowing, name='Borrowings', category='Accounts'))
+admin.add_view(AdminModelBorrowing(PastBorrowing, name='Past borrowings', category='Accounts'))
 
 # Publication and Copy extra data
 
@@ -145,6 +159,5 @@ for m in all_pubtypes.union(all_pubcopies):
         name=m._meta.verbose_name if hasattr(m._meta, 'verbose_name') else m._meta.name,
 	category='Extra Publication Data'))
     
-
 if __name__ == '__main__':
     app.run()
