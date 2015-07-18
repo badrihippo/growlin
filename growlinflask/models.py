@@ -146,6 +146,8 @@ class PubPeriodical(BasePubType):
             'year': self.date.year,
             'cover': self.cover_content[:20]
             }
+    class Meta:
+        verbose_name = 'Periodical details'
 all_pubtypes.add(PubPeriodical)
         
 class Copy(BaseModel):
@@ -189,7 +191,10 @@ class CopyBook(BaseCopyType):
         null=True)
     pub_date = pw.DateField(null=True,
         verbose_name = 'Date of Publication')
+    class Meta:
+        verbose_name = 'Book copy details'
 all_pubcopies.add(CopyBook)
+
 '''
 class Person(User):
     \'''Describes info for one particular user\'''

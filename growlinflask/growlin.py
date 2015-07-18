@@ -119,7 +119,7 @@ admin.add_view(ModelView(Group, name='Groups', category='Accounts'))
 
 for m in all_pubtypes.union(all_pubcopies):
     # TODO: Remove reference to private _meta property!
-    admin.add_view(ModelView(m, name=m._meta.name, category='Extra Publication Data'))
+    admin.add_view(ModelView(m, name=m._meta.verbose_name, category='Extra Publication Data'))
     
 
 if __name__ == '__main__':
