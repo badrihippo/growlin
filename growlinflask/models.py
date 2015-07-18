@@ -11,38 +11,6 @@ class BaseModel(pw.Model):
     class Meta:
         database = db
 
-
-all_pubtypes = set()
-all_pubcopies = set()
-
-class BasePubType(gfk.Model):
-    '''
-    For storing extra type-related information for a Publication.
-    Models subclassing this one will be added to the available options
-    for a Publication to store extra information.
-
-    TODO: Right now, submodels are added to playhouse.gfk's default
-    `all_models` set. This needs to be changed so that the are added to
-    a special `all_pubtypes` set instead.
-    '''
-    
-    class Meta:
-        database = db
-
-class BaseCopyType(gfk.Model):
-    '''
-    For storing extra type-related information for a Copy of a publication.
-    Models subclassing this one will be added to the available options
-    for a Copy to store extra information.
-
-    TODO: Right now, submodels are added to playhouse.gfk's default
-    `all_models` set. This needs to be changed so that the are added to
-    a special `all_pubcopies` set instead.
-    '''
-    
-    class Meta:
-        database = db
-
 class PublishPlace(BaseModel):
     name = pw.CharField(max_length=512, unique=True)
     def __unicode__(self):
@@ -125,31 +93,7 @@ class Publication(BaseModel):
         # Do the real save
         super(Publication, self).save(*args, **kwargs)
 
-class PubPeriodical(BasePubType):
-    cover_content = pw.CharField(verbose_name='Cover content', 
-        max_length=512,
-        help_text='Cover article/image/story (for magazines, etc.)',
-        null=True)
-    issue = pw.IntegerField(verbose_name='Issue no', null=True)
-    vol_no = pw.IntegerField(verbose_name='Volume', null=True)
-    vol_issue = pw.IntegerField(verbose_name='Vol. issue', null=True)
-    date = pw.DateField(verbose_name='Issue Date', null=True)
-    date_hide_day = pw.BooleanField('Hide issue date',
-        help_text='eg. "May 2015" instead of "22 May 2015"',
-        default=False)
 
-    def get_display_title(self, title=None, call_no=None):
-        return '%(title)s,%(date)s%(month)s%(year)s: %(cover)s' % {
-            'title': title,
-            'date': ' %s' % ('' if self.date_hide_day else self.date.day),
-            'month': '%s ' % self.date.strftime('%B'),
-            'year': self.date.year,
-            'cover': self.cover_content[:20]
-            }
-    class Meta:
-        verbose_name = 'Periodical details'
-all_pubtypes.add(PubPeriodical)
-        
 class Copy(BaseModel):
     '''
     Entry for one accessed item. Other metadata is linked using other
@@ -181,19 +125,49 @@ class Copy(BaseModel):
         verbose_name = 'Copy'
         verbose_name_plural = 'Copies'
 
-class CopyBook(BaseCopyType):
-    pub_name = pw.ForeignKeyField(Publisher, 
-        #db_constraint=False, 
-        verbose_name='Publisher',
-        null=True)
-    pub_place = pw.ForeignKeyField(PublishPlace,
-        verbose_name = 'Place of Publication',
-        null=True)
-    pub_date = pw.DateField(null=True,
-        verbose_name = 'Date of Publication')
+all_pubtypes = set()
+all_pubcopies = set()
+
+class BaseBasePubType(gfk.BaseModel):
+    def __new__(cls, name, bases, attrs):
+        cls = super(BaseBasePubType, cls).__new__(cls, name, bases, attrs)
+        cls.publication = gfk.ReverseGFK(Publication, 'pubtype', 'pubdata_id')
+        return cls
+        
+class BasePubType(pw.with_metaclass(BaseBasePubType, pw.Model)):
+    '''
+    For storing extra type-related information for a Publication.
+    Models subclassing this one will be added to the available options
+    for a Publication to store extra information.
+
+    TODO: Right now, submodels are added to playhouse.gfk's default
+    `all_models` set. This needs to be changed so that the are added to
+    a special `all_pubtypes` set instead.
+    '''
+    
     class Meta:
-        verbose_name = 'Book copy details'
-all_pubcopies.add(CopyBook)
+        database = db
+
+
+class BaseBaseCopyType(gfk.BaseModel):
+    def __new__(cls, name, bases, attrs):
+        cls = super(BaseBaseCopyType, cls).__new__(cls, name, bases, attrs)
+        cls.copy = gfk.ReverseGFK(Copy, 'copydata_type', 'copydata_id')
+        return cls
+
+class BaseCopyType(pw.with_metaclass(BaseBaseCopyType, pw.Model)):
+    '''
+    For storing extra type-related information for a Copy of a publication.
+    Models subclassing this one will be added to the available options
+    for a Copy to store extra information.
+
+    TODO: Right now, submodels are added to playhouse.gfk's default
+    `all_models` set. This needs to be changed so that the are added to
+    a special `all_pubcopies` set instead.
+    '''
+    
+    class Meta:
+        database = db
 
 '''
 class Person(User):
@@ -296,6 +270,48 @@ class PastBorrowing(BaseModel):
             'user': self.user,
             'group': self.group,
             'date': self.borrow_date}
+
+# Extra Pub/Copy data models defined below
+
+class PubPeriodical(BasePubType):
+    cover_content = pw.CharField(verbose_name='Cover content', 
+        max_length=512,
+        help_text='Cover article/image/story (for magazines, etc.)',
+        null=True)
+    issue = pw.IntegerField(verbose_name='Issue no', null=True)
+    vol_no = pw.IntegerField(verbose_name='Volume', null=True)
+    vol_issue = pw.IntegerField(verbose_name='Vol. issue', null=True)
+    date = pw.DateField(verbose_name='Issue Date', null=True)
+    date_hide_day = pw.BooleanField('Hide issue date',
+        help_text='eg. "May 2015" instead of "22 May 2015"',
+        default=False)
+
+    def get_display_title(self, title=None, call_no=None):
+        return '%(title)s,%(date)s%(month)s%(year)s: %(cover)s' % {
+            'title': title,
+            'date': ' %s' % ('' if self.date_hide_day else self.date.day),
+            'month': '%s ' % self.date.strftime('%B'),
+            'year': self.date.year,
+            'cover': self.cover_content[:20]
+            }
+    class Meta:
+        verbose_name = 'Periodical details'
+all_pubtypes.add(PubPeriodical)
+
+class CopyBook(BaseCopyType):
+    pub_name = pw.ForeignKeyField(Publisher, 
+        #db_constraint=False, 
+        verbose_name='Publisher',
+        null=True)
+    pub_place = pw.ForeignKeyField(PublishPlace,
+        verbose_name = 'Place of Publication',
+        null=True)
+    pub_date = pw.DateField(null=True,
+        verbose_name = 'Date of Publication')
+    class Meta:
+        verbose_name = 'Book copy details'
+all_pubcopies.add(CopyBook)
+
 
 def create_tables():
     db.connect()
