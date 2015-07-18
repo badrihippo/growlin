@@ -32,6 +32,11 @@ To set up the project, `cd` to to the `growlinflask` directory, and then install
 
     pip install -r requirements.txt
 
+To set up the database and generate the test data, you can type the following in a Python console (opened in the `growlinflask` directory):
+
+    >>> import models
+    >>> models.create_test_data()
+
 Once everything is installed, you can run the server using:
 
     python growlin.py
