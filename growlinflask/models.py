@@ -69,7 +69,6 @@ class Publication(BaseModel):
     pubdata_id = pw.IntegerField(null=True)
     pubdata = gfk.GFKField('pubtype', 'pubdata_id')
 
-    location = pw.ForeignKeyField(Location)
     #current_borrower = ForeignKeyField('User', null=True)
     identifier = pw.CharField(max_length=256, null=True)
     call_no = pw.CharField(max_length=8, default='000')
@@ -102,6 +101,7 @@ class Copy(BaseModel):
     '''
     accession = pw.IntegerField(unique=True)
     item = pw.ForeignKeyField(Publication, related_name='copies')
+    location = pw.ForeignKeyField(Location)
 
     copydata_type = pw.CharField(null=True)
     copydata_id = pw.CharField(null=True)

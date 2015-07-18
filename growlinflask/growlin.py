@@ -106,12 +106,6 @@ class AdminModelUser(ModelView):
 
 
 class AdminModelPublication(ModelView):
-    form_ajax_refs = {
-        'location': {
-	    'fields': ['name'],
-	    'page_size': 5
-	},
-    }
     inline_models = (Copy,)
 
 class AdminModelCopy(ModelView):
@@ -119,6 +113,10 @@ class AdminModelCopy(ModelView):
 	'item': {
 	    'fields': ['title', 'call_no'],
 	    'page_size': 10
+	},
+	'location': {
+	    'fields': ['name'],
+	    'page_size': 5
 	},
     }
 
