@@ -215,6 +215,13 @@ class User(BaseModel, UserMixin):
             self.email = '%s@growlin' % self.name.replace(' ', '').lower()
         # Do the real save
         super(User, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return '%(group)s - %(refnum)s%(name)s (%(username)s)' % {
+            'name': self.name,
+            'refnum': self.refnum + ' - ' if self.refnum else '',
+            'username': self.username,
+            'group': self.group.name}
     
 class Role(BaseModel):
     name = pw.CharField(unique=True)
