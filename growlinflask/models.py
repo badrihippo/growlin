@@ -4,6 +4,7 @@ from flask.ext.login import UserMixin
 #from flask.ext.security import UserMixin, RoleMixin
 from wtfpeewee.orm import model_form
 from playhouse import gfk
+from datetime import datetime
 
 db = pw.SqliteDatabase('growlin.db')
 
@@ -222,6 +223,75 @@ class User(BaseModel, UserMixin):
             'refnum': self.refnum + ' - ' if self.refnum else '',
             'username': self.username,
             'group': self.group.name}
+
+    def borrow(self, copy, accession=None, longterm=False, interactive=False):
+        '''
+        Marks a Copy as "borrowed" using the Borrowed database model, after
+        checking for valid accession number. Setting the "interactive" flag
+        will cause the function to open a prompt for dynamic input of the
+        accession number.
+
+        This function returns the newly created Borrowing instance
+        '''
+        
+        if interactive and accession is None:
+            accession = int(raw_input('Enter accession for "%(title)s": ' %
+                {'title': copy.item.title}))
+        if accession != copy.accession:
+            raise ValueError('Accession numbers do not match.')
+        # Reborrowing will stop because of unique constraint on
+        # Borrowing.accession field
+        b = Borrowing.create(
+            user=self,
+            copy=copy,
+            group=self.group,
+            borrow_date = datetime.now(),
+            is_longterm = longterm)
+        return b
+
+    # "return" is a reserved word!
+    def unborrow(self, copy_or_borrow, accession=None, interactive=False):
+        '''
+        Marks a Copy as "returned" using the database models, after checking
+        for valid accession number. You can give either the actual Borrowing
+        instance or the Copy object that needs to be returned. Setting the
+        "interactive" flag will cause  the function to open a prompt for
+        dynamic input of the accession number.
+
+        This function deletes the Borrowing model and returns a newly created
+        PastBorrowing model instance used to hold historic records. 
+        '''
+
+        if type(copy_or_borrow) == Copy:
+            try:
+                b = Borrowing.get(
+                    Borrowing.copy == copy_or_borrow,
+                    Borrowing.user == self)
+            except Borrowing.DoesNotExist:
+                raise Borrowing.DoesNotExist('You have not borrowed that item!')
+        elif type(copy_or_borrow) == Borrowing:
+            if copy_or_borrow.user != self:
+                raise Borrowing.DoesNotExist('That item is not borrowed by you!')
+            else:
+                b = copy_or_borrow
+        else:
+            raise ValueError('copy_or_borrow must be either a Copy or Borrowing instance')
+
+        if interactive and accession is None:
+            accession = int(raw_input('Enter accession for "%(title)s": ' %
+                {'title': b.copy.item.title}))
+        if accession != b.copy.accession:
+            raise ValueError('Accession numbers do not match.')
+                
+        p = PastBorrowing.create(
+            user=self,
+            accession=b.copy.accession,
+            group=self.group,
+            borrow_date = b.borrow_date,
+            return_date = datetime.now()
+            )
+        b.delete().execute()
+        return p
     
 class Role(BaseModel):
     name = pw.CharField(unique=True)
@@ -246,7 +316,7 @@ class Borrowing(BaseModel):
     This model may also store redundant information such as title, in
     order to make lookups faster.
     '''
-    accession = pw.ForeignKeyField(Copy)
+    copy = pw.ForeignKeyField(Copy, unique=True)
     user = pw.ForeignKeyField(User)
     group = pw.ForeignKeyField(Group)
     borrow_date = pw.DateTimeField()
@@ -254,7 +324,7 @@ class Borrowing(BaseModel):
     is_longterm = pw.BooleanField(default=False)
     def __unicode__(self):
         return '%(acc)s by %(user)s (%(group)s) on %(date)s' % {
-            'acc': self.accession,
+            'acc': self.copy,
             'user': self.user,
             'group': self.group,
             'date': self.borrow_date}
