@@ -1,5 +1,4 @@
 import peewee as pw
-from playhouse.shortcuts import ManyToManyField
 from flask.ext.login import UserMixin
 #from flask.ext.security import UserMixin, RoleMixin
 from wtfpeewee.orm import model_form
