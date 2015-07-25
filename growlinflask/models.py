@@ -5,6 +5,11 @@ from wtfpeewee.orm import model_form
 from playhouse import gfk
 from datetime import datetime
 
+# Some custom errors.
+# TODO: Move to separate file if there are many of them?
+class GrowlinException(Exception): pass
+class BorrowError(GrowlinException): pass
+
 db = pw.SqliteDatabase('growlin.db')
 
 class BaseModel(pw.Model):
@@ -237,7 +242,7 @@ class User(BaseModel, UserMixin):
             accession = int(raw_input('Enter accession for "%(title)s": ' %
                 {'title': copy.item.title}))
         if accession != copy.accession:
-            raise ValueError('Accession numbers do not match.')
+            raise BorrowError('Accession numbers do not match.')
         # Reborrowing will stop because of unique constraint on
         # Borrowing.accession field
         b = Borrowing.create(
@@ -267,10 +272,10 @@ class User(BaseModel, UserMixin):
                     Borrowing.copy == copy_or_borrow,
                     Borrowing.user == self)
             except Borrowing.DoesNotExist:
-                raise Borrowing.DoesNotExist('You have not borrowed that item!')
+                raise BorrowError('You have not borrowed that item!')
         elif type(copy_or_borrow) == Borrowing:
             if copy_or_borrow.user != self:
-                raise Borrowing.DoesNotExist('That item is not borrowed by you!')
+                raise BorrowError('That item is not borrowed by you!')
             else:
                 b = copy_or_borrow
         else:
@@ -280,7 +285,7 @@ class User(BaseModel, UserMixin):
             accession = int(raw_input('Enter accession for "%(title)s": ' %
                 {'title': b.copy.item.title}))
         if accession != b.copy.accession:
-            raise ValueError('Accession numbers do not match.')
+            raise BorrowError('Accession numbers do not match.')
                 
         p = PastBorrowing.create(
             user=self,
