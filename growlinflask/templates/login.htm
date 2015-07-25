@@ -2,38 +2,52 @@
 {% block title %}Login | Growlin{% endblock %}
 
 {% block content %}
-<h1>Please login...</h1>
-<form id="login_form" method="post" action={{url_for('login')}}>
-  {{form.csrf_token}}
-  {% if form.errors %}
-  <ul>
-		{% for field_name, field_errors in form.errors|dictsort if field_errors %}
-      {% for error in field_errors %}
-        <li>{{error}}</li>
-      {% endfor %}
-    {% endfor %}
-  </ul>
-  {% endif %}
-  <ul>
-    {% for group in group_list %}
-    <li>
-      <b>{{group.name}}</b>
-      <ul>
-        {% for user in group.users %}
-        <a href="javascript:setUsername('{{user.username}}', {% if user.password and user.password != "" %}true{% else %}false{% endif %});"><li>{{user.name}}</li></a>
-        {% endfor %}
-      </ul>
-    </li>
-    {% endfor %}
-  </ul>
-  
-  <ul>
-    <li>{{form.username.label}} {{form.username}}</li>
-    <li>{{form.password.label}} {{form.password}}</li>
-  </ul>
-  <input type="submit" class="btn btn-default" value="Login" />
-</form>
+<nav>
+    <div class="nav-wrapper teal">
+      <a href="#" class="brand-logo center">Login to Growlin</a>
+    </div>
+</nav>
+<div class="container">
+  <h1 class="center-align flow-text">Please login...</h1>
+  <form id="login_form" method="post" action={{url_for('login')}}>
+    {{form.csrf_token}}
+    <div class="row">
+      <div class="row  small col s8 offset-s2">
+      {% if form.errors %}
+        <ul class="card-panel red lighten-1">
+          {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+            {% for error in field_errors %}
+              <li class="white-text" style="font-weight:300" height="50px">{{error}}</li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+      {% endif %}
+        <div class="col s6">
+          <ul class="collapsible popout" data-collapsible="accordion">
+            {% for group in group_list %}
+            <li>
+              <div class="collapsible-header"><b>{{group.name}}</b></div>
+              <ul class="collapsible-body collection">
+                {% for user in group.users %}
+                <a class="collection-item" href="javascript:setUsername('{{user.username}}', {% if user.password and user.password != "" %}true{% else %}false{% endif %});"><li>{{user.name}}</li></a>
+                {% endfor %}
+              </ul>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col s6" style="height:250px">
+          <ul>
+            <li>{{form.username.label}} {{form.username}}</li>
+            <li>{{form.password.label}} {{form.password}}</li>
+          </ul>
+          <input type="submit" class="btn btn-default" value="Login" />
 
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
 <script type="text/javascript">
   function setUsername(username, pass=True) {
     $('#{{form.username.id}}').val(username);
