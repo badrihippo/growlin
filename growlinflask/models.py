@@ -1,8 +1,14 @@
 import peewee as pw
-from playhouse.shortcuts import ManyToManyField
 from flask.ext.login import UserMixin
 #from flask.ext.security import UserMixin, RoleMixin
 from wtfpeewee.orm import model_form
+from playhouse import gfk
+from datetime import datetime
+
+# Some custom errors.
+# TODO: Move to separate file if there are many of them?
+class GrowlinException(Exception): pass
+class BorrowError(GrowlinException): pass
 
 db = pw.SqliteDatabase('growlin.db')
 
@@ -13,7 +19,7 @@ class BaseModel(pw.Model):
 class PublishPlace(BaseModel):
     name = pw.CharField(max_length=512, unique=True)
     def __unicode__(self):
-        return '%(place)s' % {'place': self.place}
+        return '%(name)s' % {'name': self.name}
 
 class Publisher(BaseModel):
     name = pw.CharField(max_length=256)
@@ -50,14 +56,7 @@ class Location(BaseModel):
     name = pw.CharField(max_length=256, unique=True)
     prevent_borrowing = pw.BooleanField(default=False)
     def __unicode__(self):
-        return '%(name)s' % {'name': self.loc_name}
-        
-class PublicationType(BaseModel):
-    '''Type of Publication: display settings may change based on type'''
-    name = pw.CharField(unique=True)
-
-    def __unicode__(self):
-        return self.itype
+        return '%(name)s' % {'name': self.name}
 
 class Publication(BaseModel):
     '''
@@ -69,22 +68,12 @@ class Publication(BaseModel):
         help_text='Full title of book, or name of Magazine/Periodical')
     display_title = pw.CharField(max_length=256,
         help_text='Short version of title, for displaying in lists.\
-        Set to "auto" to auto-set (recommended for periodicals)',
+        Leave blank or set to "auto" to auto-set',
         default='auto')
-    pubtype = pw.ForeignKeyField(PublicationType, verbose_name='Item type')
-    mag_cover = pw.CharField(verbose_name='Cover content', 
-        max_length=512,
-        help_text='Cover article/image/story (for magazines, etc.)',
-        null=True)
-    mag_issue = pw.IntegerField(verbose_name='Issue no', null=True)
-    mag_vol_no = pw.IntegerField(verbose_name='Volume', null=True)
-    mag_issue_no = pw.IntegerField(verbose_name='Vol. issue', null=True)
-    mag_date = pw.DateField(verbose_name='Issue Date', null=True)
-    mag_date_show_day = pw.BooleanField('Hide issue date',
-        help_text='eg. "May 2015" instead of "22 May 2015"',
-        default=False)
-    author = ManyToManyField(Author)
-    location = pw.ForeignKeyField(Location)
+    pubtype = pw.CharField(null=True)
+    pubdata_id = pw.IntegerField(null=True)
+    pubdata = gfk.GFKField('pubtype', 'pubdata_id')
+
     #current_borrower = ForeignKeyField('User', null=True)
     identifier = pw.CharField(max_length=256, null=True)
     call_no = pw.CharField(max_length=8, default='000')
@@ -98,21 +87,17 @@ class Publication(BaseModel):
     def save(self, *args, **kwargs):
         # Set the slug if field is blank
         if self.display_title == 'auto' or not self.display_title:
-            if self.itype == 'mag':
-                self.display_title = '%(title)s,%(date)s%(month)s%(year)s: %(cover)s' % {
-                    'title': self.title,
-                    'date': ' %s' % (self.mag_date.day if self.mag_date_show_day else ''),
-                    'month': '%s ' % self.mag_date.strftime('%B'),
-                    'year': self.mag_date.year,
-                    'cover': self.mag_cover[:20]
-                    }
+            if hasattr(self.pubdata, 'get_display_title'):
+                self.display_title = self.pubdata.get_display_title(self.title, self.call_no)
+                if not self.display_title:
+                    self.display_title = self.title
             else:
-                self.display_title = '%(title)s' % {
-                    'title': self.title
-                    }
+                self.display_title = self.title
+                
         # Do the real save
         super(Publication, self).save(*args, **kwargs)
-        
+
+
 class Copy(BaseModel):
     '''
     Entry for one accessed item. Other metadata is linked using other
@@ -120,17 +105,13 @@ class Copy(BaseModel):
     common to all types of accession
     '''
     accession = pw.IntegerField(unique=True)
-    item = pw.ForeignKeyField(Publication)
-    
-    pub_name = pw.ForeignKeyField(Publisher, 
-        #db_constraint=False, 
-        verbose_name='Publisher',
-        null=True)
-    pub_place = pw.ForeignKeyField(PublishPlace,
-        verbose_name = 'Place of Publication',
-        null=True)
-    pub_date = pw.DateField(null=True,
-        verbose_name = 'Date of Publication')
+    item = pw.ForeignKeyField(Publication, related_name='copies')
+    location = pw.ForeignKeyField(Location)
+
+    copydata_type = pw.CharField(null=True)
+    copydata_id = pw.CharField(null=True)
+    copydata = gfk.GFKField('copydata_type', 'copydata_id')
+
     #Source
     price = pw.FloatField(default=0, null=True)
     price_currency = pw.ForeignKeyField(Currency, null=True)
@@ -140,7 +121,6 @@ class Copy(BaseModel):
         verbose_name = 'Copy'
         verbose_name_plural = 'Copies'
     
-    
     # TODO: comments, keywords
     def __unicode__(self):
         return '%(accession)s - %(display_title)s' % {
@@ -149,6 +129,50 @@ class Copy(BaseModel):
     class Meta:
         verbose_name = 'Copy'
         verbose_name_plural = 'Copies'
+
+all_pubtypes = set()
+all_pubcopies = set()
+
+class BaseBasePubType(gfk.BaseModel):
+    def __new__(cls, name, bases, attrs):
+        cls = super(BaseBasePubType, cls).__new__(cls, name, bases, attrs)
+        cls.publication = gfk.ReverseGFK(Publication, 'pubtype', 'pubdata_id')
+        return cls
+        
+class BasePubType(pw.with_metaclass(BaseBasePubType, pw.Model)):
+    '''
+    For storing extra type-related information for a Publication.
+    Models subclassing this one will be added to the available options
+    for a Publication to store extra information.
+
+    TODO: Right now, submodels are added to playhouse.gfk's default
+    `all_models` set. This needs to be changed so that the are added to
+    a special `all_pubtypes` set instead.
+    '''
+    
+    class Meta:
+        database = db
+
+
+class BaseBaseCopyType(gfk.BaseModel):
+    def __new__(cls, name, bases, attrs):
+        cls = super(BaseBaseCopyType, cls).__new__(cls, name, bases, attrs)
+        cls.copy = gfk.ReverseGFK(Copy, 'copydata_type', 'copydata_id')
+        return cls
+
+class BaseCopyType(pw.with_metaclass(BaseBaseCopyType, pw.Model)):
+    '''
+    For storing extra type-related information for a Copy of a publication.
+    Models subclassing this one will be added to the available options
+    for a Copy to store extra information.
+
+    TODO: Right now, submodels are added to playhouse.gfk's default
+    `all_models` set. This needs to be changed so that the are added to
+    a special `all_pubcopies` set instead.
+    '''
+    
+    class Meta:
+        database = db
 
 '''
 class Person(User):
@@ -173,7 +197,7 @@ class Group(BaseModel):
     name = pw.CharField(max_length=128, index=True)
     visible = pw.BooleanField(default=True)
     def __unicode__(self):
-        return self.name
+        return '%(name)s' % {'name': self.name}
 
 class User(BaseModel, UserMixin):
     username = pw.CharField(32, unique=True)
@@ -196,10 +220,89 @@ class User(BaseModel, UserMixin):
             self.email = '%s@growlin' % self.name.replace(' ', '').lower()
         # Do the real save
         super(User, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return '%(group)s - %(refnum)s%(name)s (%(username)s)' % {
+            'name': self.name,
+            'refnum': self.refnum + ' - ' if self.refnum else '',
+            'username': self.username,
+            'group': self.group.name}
+
+    def borrow(self, copy, accession=None, longterm=False, interactive=False):
+        '''
+        Marks a Copy as "borrowed" using the Borrowed database model, after
+        checking for valid accession number. Setting the "interactive" flag
+        will cause the function to open a prompt for dynamic input of the
+        accession number.
+
+        This function returns the newly created Borrowing instance
+        '''
+        
+        if interactive and accession is None:
+            accession = int(raw_input('Enter accession for "%(title)s": ' %
+                {'title': copy.item.title}))
+        if accession != copy.accession:
+            raise BorrowError('Accession numbers do not match.')
+        # Reborrowing will stop because of unique constraint on
+        # Borrowing.accession field
+        b = Borrowing.create(
+            user=self,
+            copy=copy,
+            group=self.group,
+            borrow_date = datetime.now(),
+            is_longterm = longterm)
+        return b
+
+    # "return" is a reserved word!
+    def unborrow(self, copy_or_borrow, accession=None, interactive=False):
+        '''
+        Marks a Copy as "returned" using the database models, after checking
+        for valid accession number. You can give either the actual Borrowing
+        instance or the Copy object that needs to be returned. Setting the
+        "interactive" flag will cause  the function to open a prompt for
+        dynamic input of the accession number.
+
+        This function deletes the Borrowing model and returns a newly created
+        PastBorrowing model instance used to hold historic records. 
+        '''
+
+        if type(copy_or_borrow) == Copy:
+            try:
+                b = Borrowing.get(
+                    Borrowing.copy == copy_or_borrow,
+                    Borrowing.user == self)
+            except Borrowing.DoesNotExist:
+                raise BorrowError('You have not borrowed that item!')
+        elif type(copy_or_borrow) == Borrowing:
+            if copy_or_borrow.user != self:
+                raise BorrowError('That item is not borrowed by you!')
+            else:
+                b = copy_or_borrow
+        else:
+            raise ValueError('copy_or_borrow must be either a Copy or Borrowing instance')
+
+        if interactive and accession is None:
+            accession = int(raw_input('Enter accession for "%(title)s": ' %
+                {'title': b.copy.item.title}))
+        if accession != b.copy.accession:
+            raise BorrowError('Accession numbers do not match.')
+                
+        p = PastBorrowing.create(
+            user=self,
+            accession=b.copy.accession,
+            group=self.group,
+            borrow_date = b.borrow_date,
+            return_date = datetime.now()
+            )
+        b.delete().execute()
+        return p
     
 class Role(BaseModel):
     name = pw.CharField(unique=True)
     description = pw.TextField(null=True)
+
+    def __unicode__(self):
+        return '%(name)s' % {'name': self.name}
 
 class UserRoles(BaseModel):
     # Because peewee does not come with built-in many-to-many
@@ -217,7 +320,7 @@ class Borrowing(BaseModel):
     This model may also store redundant information such as title, in
     order to make lookups faster.
     '''
-    accession = pw.ForeignKeyField(Copy)
+    copy = pw.ForeignKeyField(Copy, unique=True)
     user = pw.ForeignKeyField(User)
     group = pw.ForeignKeyField(Group)
     borrow_date = pw.DateTimeField()
@@ -225,7 +328,7 @@ class Borrowing(BaseModel):
     is_longterm = pw.BooleanField(default=False)
     def __unicode__(self):
         return '%(acc)s by %(user)s (%(group)s) on %(date)s' % {
-            'acc': self.accession,
+            'acc': self.copy,
             'user': self.user,
             'group': self.group,
             'date': self.borrow_date}
@@ -249,20 +352,68 @@ class PastBorrowing(BaseModel):
             'group': self.group,
             'date': self.borrow_date}
 
+# Extra Pub/Copy data models defined below
+
+class PubPeriodical(BasePubType):
+    cover_content = pw.CharField(verbose_name='Cover content', 
+        max_length=512,
+        help_text='Cover article/image/story (for magazines, etc.)',
+        null=True)
+    issue = pw.IntegerField(verbose_name='Issue no', null=True)
+    vol_no = pw.IntegerField(verbose_name='Volume', null=True)
+    vol_issue = pw.IntegerField(verbose_name='Vol. issue', null=True)
+    date = pw.DateField(verbose_name='Issue Date', null=True)
+    date_hide_day = pw.BooleanField('Hide issue date',
+        help_text='eg. "May 2015" instead of "22 May 2015"',
+        default=False)
+
+    def get_display_title(self, title=None, call_no=None):
+        return '%(title)s,%(date)s%(month)s%(year)s: %(cover)s' % {
+            'title': title,
+            'date': ' %s' % ('' if self.date_hide_day else self.date.day),
+            'month': '%s ' % self.date.strftime('%B'),
+            'year': self.date.year,
+            'cover': self.cover_content[:20]
+            }
+    class Meta:
+        verbose_name = 'Periodical details'
+all_pubtypes.add(PubPeriodical)
+
+class CopyBook(BaseCopyType):
+    pub_name = pw.ForeignKeyField(Publisher, 
+        #db_constraint=False, 
+        verbose_name='Publisher',
+        null=True)
+    pub_place = pw.ForeignKeyField(PublishPlace,
+        verbose_name = 'Place of Publication',
+        null=True)
+    pub_date = pw.DateField(null=True,
+        verbose_name = 'Date of Publication')
+    class Meta:
+        verbose_name = 'Book copy details'
+all_pubcopies.add(CopyBook)
+
+
 def create_tables():
     db.connect()
     db.create_tables([PublishPlace, Publisher, Currency])
     db.create_tables([Author, Location,])
-    db.create_tables([PublicationType, Publication, Copy])
+    db.create_tables([Publication, Copy])
     db.create_tables([Group, User, Role, UserRoles])
     db.create_tables([Borrowing, PastBorrowing])
 
+    # Extra pub data
+    db.create_tables(gfk.all_models)
+
 def create_test_data():
     print 'Generating test data...'
-    models = (Group, Role, User, UserRoles, PublishPlace, Publisher, Currency, Author, Location, PublicationType, Publication, Copy, Borrowing, PastBorrowing)
+    models = (Group, Role, User, UserRoles, PublishPlace, Publisher, Currency, Author, Location, Publication, Copy, Borrowing, PastBorrowing) + tuple(all_pubtypes.union(all_pubcopies))
     for Model in models:
+        print 'Resetting table: ', Model
         Model.drop_table(fail_silently=True)
         Model.create_table(fail_silently=True)
+
+    print 'Inserting test data . . .',
 	
     g = Group.create(name='Earth')
     User.create(name='Moon', password='pass', group=g)
@@ -284,6 +435,6 @@ def create_test_data():
     User.create(name='Mimas', group=g)
     User.create(name='Dione', group=g)
 
-    book_type = PublicationType.create(itype='book')
+    loc_main = Location.create(name='Main')
 
-    loc_main = Location.create(loc_name='Main')
+    print 'done.'

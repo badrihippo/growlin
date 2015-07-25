@@ -4,6 +4,7 @@ import wtforms as wtf
 from flask.ext.login import LoginManager, login_required, login_user, logout_user
 from flask.ext.principal import Principal, Permission, RoleNeed
 from flask_admin import Admin, BaseView, expose
+from flask_admin.form import rules
 from flask_admin.contrib.peewee.view import ModelView
 from wtfpeewee.orm import model_form
 #from flask.ext.security import Security, PeeweeUserDatastore, login_required
@@ -20,11 +21,15 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 @login_manager.user_loader
-def load_user(username):
+def load_user(userid=None, username=None):
     try:
-        return User.get(User.username == username)
-    except:
-		return None
+        if userid is not None:
+            user = User.get(User.id == userid)
+        elif username is not None:
+	    user = User.get(User.username == username)
+    except pw.DoesNotExist:
+	return None
+    return user
     
 # Setup Flask-Principal
 principals = Principal(app)
@@ -50,7 +55,7 @@ def login():
     group_list = Group.select()
     if form.validate_on_submit():
         # Login and validate the user.
-        user = load_user(form.username.data)
+        user = load_user(username=form.username.data)
         if (not user) or (user.password and user.password != form.password.data):
             msg = 'Invalid username or password'
             if form.errors.has_key('password'):
@@ -58,7 +63,7 @@ def login():
             else:
                 form.errors['password'] = [msg]
         else:
-			# All OK. Log in the user.
+		# All OK. Log in the user.
 	        login_user(user)
 	
 	        flash('Logged in successfully.')
@@ -100,20 +105,59 @@ class AdminModelUser(ModelView):
     can_create = True
     column_list = ('username', 'name', 'group', 'active')
 
-admin.add_view(ModelView(Publication, name='Publications', category='Registry'))
-admin.add_view(ModelView(Copy, name='Copies', category='Registry'))
+
+class AdminModelPublication(ModelView):
+    form_create_rules = ('title', 'display_title', 'call_no', 'keywords', 'comments', 'identifier', 'copies')
+    form_excluded_columns = ['pubtype', 'pubdata_id']
+    edit_modal = True
+    inline_models = (Copy,)
+
+class AdminModelCopy(ModelView):
+    form_excluded_columns = ['copydata_type', 'copydata_id']
+    form_ajax_refs = {
+	'item': {
+	    'fields': ['title', 'call_no'],
+	    'page_size': 10
+	},
+	'location': {
+	    'fields': ['name'],
+	    'page_size': 5
+	},
+    }
+class AdminModelBorrowing(ModelView):
+    form_excluded_columns = ['copydata_type', 'copydata_id']
+    form_ajax_refs = {
+	'user': {
+	    'fields': ['refnum', 'username', 'name', 'email'],
+	    'page_size': 10
+	},
+	'group': {
+	    'fields': ['name'],
+	    'page_size': 5,
+	},
+    }
+
+
+admin.add_view(AdminModelPublication(Publication, name='Publications', category='Registry'))
+admin.add_view(AdminModelCopy(Copy, name='Copies', category='Registry'))
 
 admin.add_view(ModelView(Publisher, name='Publishers', category='Metadata'))
 admin.add_view(ModelView(PublishPlace, name='Publish locations', category='Metadata'))
-admin.add_view(ModelView(PublicationType, name='Publication Types', category='Metadata'))
 
-admin.add_view(ModelView(Location, name='Locations'))
-
-
+admin.add_view(ModelView(Location, name='Places'))
 
 admin.add_view(AdminModelUser(User, name='Users', category='Accounts'))
 admin.add_view(ModelView(Group, name='Groups', category='Accounts'))
-    
+admin.add_view(AdminModelBorrowing(Borrowing, name='Borrowings', category='Accounts'))
+admin.add_view(AdminModelBorrowing(PastBorrowing, name='Past borrowings', category='Accounts'))
 
+# Publication and Copy extra data
+
+for m in all_pubtypes.union(all_pubcopies):
+    # TODO: Remove reference to private _meta property!
+    admin.add_view(ModelView(m,
+        name=m._meta.verbose_name if hasattr(m._meta, 'verbose_name') else m._meta.name,
+	category='Extra Publication Data'))
+    
 if __name__ == '__main__':
     app.run()
