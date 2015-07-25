@@ -31,7 +31,7 @@
 
 <div class="container">
 	<div class="card hoverable center-align" id="main">
-		<img src="http://zizaza.com/cache/big_thumb/iconset/582520/582522/PNG/512/flat_round/book_flat_book_png_book_icon_web_icon_png.png" id="image">
+		<img src="../static/img/welcome_logo.png" id="image">
 		<h1>Welcome to Growlin</h1>
 		{% if current_user.is_authenticated() %}
 		<p>Welcome, {{current_user.name}}! <a href="{{url_for('logout')}}">Click here</a> to sign out.</p>
