@@ -428,15 +428,16 @@ def create_test_data():
         Model.drop_table(fail_silently=True)
         Model.create_table(fail_silently=True)
 
-    print 'Inserting test data . . .',
-	
+    print 'Inserting test data: ',
+
+    print '[groups]',
     g = Group.create(name='Earth')
     User.create(name='Moon', password='pass', group=g)
 
     g = Group.create(name='Mars')
     User.create(name='Phobos', group=g)
     User.create(name='Deimos', group=g)
-   
+
     g = Group.create(name='Jupiter')
     User.create(name='Io', group=g)
     User.create(name='Europa', group=g)
@@ -452,4 +453,27 @@ def create_test_data():
 
     loc_main = Location.create(name='Main')
 
-    print 'done.'
+    print '[publications]',
+    p = Publication.create(title='The Slippery Seals',
+        comments='The first book in the SNAP booklet series',
+        keywords='snap, seals, wildlife')
+    c = Copy.create(item=p,
+        accession=1,
+        location=loc_main,
+        source='Stolen from the store!',
+        receipt_date=datetime.now())
+    c = Copy.create(item=p,
+        accession=2,
+        location=loc_main,
+        source='A gift from the valley',
+        receipt_date=datetime.now())
+    p = Publication.create(title='The Ferocious Felids',
+        comments='The second book in the SNAP booklet series',
+        keywords='snap, cats, lions, tigers, leopards, wildlife')
+    c = Copy.create(item=p,
+        accession=1,
+        location=loc_main,
+        source='Bought at Ascraeus Mons',
+        receipt_date=datetime.now())
+
+    print '...done.'
