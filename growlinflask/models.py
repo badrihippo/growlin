@@ -245,13 +245,19 @@ class User(BaseModel, UserMixin):
             raise BorrowError('Accession numbers do not match.')
         # Reborrowing will stop because of unique constraint on
         # Borrowing.accession field
-        b = Borrowing.create(
-            user=self,
-            copy=copy,
-            group=self.group,
-            borrow_date = datetime.now(),
-            is_longterm = longterm)
-        return b
+        try:
+            b = Borrowing.create(
+                user=self,
+                copy=copy,
+                group=self.group,
+                borrow_date = datetime.now(),
+                is_longterm = longterm)
+            return b
+        except pw.IntegrityError, e:
+            if e.message == 'UNIQUE constraint failed: borrowing.copy_id':
+                raise BorrowError('Item is already borrowed!')
+            else:
+                raise e
 
     # "return" is a reserved word!
     def unborrow(self, copy_or_borrow, accession=None, interactive=False):
@@ -294,9 +300,18 @@ class User(BaseModel, UserMixin):
             borrow_date = b.borrow_date,
             return_date = datetime.now()
             )
-        b.delete().execute()
+        b.delete_instance()
         return p
-    
+
+    def get_current_borrowings(self):
+        '''
+        Gets the list of records for books currently borrowed by the user.
+        '''
+
+        b = Borrowing.select().where(Borrowing.user == self)
+        c = Copy.select().join(Publication)
+        return pw.prefetch(b,c).select()
+
 class Role(BaseModel):
     name = pw.CharField(unique=True)
     description = pw.TextField(null=True)
