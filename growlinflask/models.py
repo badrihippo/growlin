@@ -457,12 +457,12 @@ def create_test_data():
     p = Publication.create(title='The Slippery Seals',
         comments='The first book in the SNAP booklet series',
         keywords='snap, seals, wildlife')
-    c = Copy.create(item=p,
+    c1 = Copy.create(item=p,
         accession=1,
         location=loc_main,
         source='Stolen from the store!',
         receipt_date=datetime.now())
-    c = Copy.create(item=p,
+    c2 = Copy.create(item=p,
         accession=2,
         location=loc_main,
         source='A gift from the valley',
@@ -470,10 +470,19 @@ def create_test_data():
     p = Publication.create(title='The Ferocious Felids',
         comments='The second book in the SNAP booklet series',
         keywords='snap, cats, lions, tigers, leopards, wildlife')
-    c = Copy.create(item=p,
-        accession=1,
+    c3 = Copy.create(item=p,
+        accession=3,
         location=loc_main,
         source='Bought at Ascraeus Mons',
         receipt_date=datetime.now())
+
+    print '[borrowings]',
+    e = User.get(username='europa')
+    e.borrow(c1,1)
+    e.unborrow(c1,1)
+    e.borrow(c2,2)
+    e.borrow(c3,3)
+    e.unborrow(c3,3)
+    e.borrow(c3,3)
 
     print '...done.'
