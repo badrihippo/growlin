@@ -1,15 +1,43 @@
 {% extends 'base.htm' %}
+ {% block extrahead %}
+ 	<style type="text/css">
+ 		#title{
+ 			font-weight: 300;
+ 			margin-left: 20px;
+ 		}
+ 	</style>
+ {% endblock %}
 {% block content %}
-<ul class="nav-toolbar">
-  <li><a href="{{url_for('user_shelf')}}">Shelf</a></li>
-  <li><a href="#">History</a></li>
-  <li><form><input type="search"><input type="submit" value="Search books"></form></li>
-  <!--add more menu items here, if required-->
-  <li><a href="{{url_for('logout')}}">Logout</a></li>
-</ul>
-    {% block user_content %}
-    <p>You should ideally not be reading this message, unless you are a developer.</p>
-    {% endblock %}
+
+	<nav>
+	<div class="nav-wrapper teal">
+	  <a href="#!" class="brand-logo" id="title">Welcome to Growlin, {{current_user.name}}</a>
+	  <ul class="right hide-on-med-and-down">
+	  	<!-- Shelf Button -->
+	    <li>
+	        <a href="{{url_for('user_shelf')}}" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Shelf">
+	        	<i class="material-icons">list</i>
+	        </a>
+	    </li>
+	    <!-- History Button -->
+	    <li>
+	        <a href="#"  class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="History">
+	        	<i class="material-icons">history</i>
+	        </a>
+	    </li>
+	    <!-- Logout Button -->
+	    <li>
+	        <a href="{{url_for('logout')}}"  class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Logout">
+	        	<i class="material-icons">input</i>
+	        </a>
+	    </li>
+	  </ul>
+	</div>
+	</nav>        
+
+	{% block user_content %}
+	<p>You should ideally not be reading this message, unless you are a developer.</p>
+	{% endblock %}
 
   <!--footer, if any-->
 {% endblock %}
