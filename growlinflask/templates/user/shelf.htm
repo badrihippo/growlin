@@ -1,38 +1,81 @@
 {% extends 'user/base_user.htm' %}
+{% block extrahead %}
+  <style type="text/css">
+      body{
+        background-color: #eeeeee;
+      }
+  </style>
+{% endblock %}
 {% block user_content %}
-<table>
+
+<!-- <table>
   {% for r in records %}
   <tr>
     <td>{{r.copy.item.pubtype}}</td>
     <td>{{r.copy.item.title}}</td>
     <td>{{r.borrow_date}}</td>
-    <!--...-->
-    <td><a href="#">Return</a></td>
+        <td><a href="#">Return</a></td>
   </tr>
   {% endfor %}
 </table>
+ -->
 
-  <div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
-    <!-- Borrow Button -->
-    <a class="btn-floating btn-large red tooltipped" data-position="left" data-delay="50" data-tooltip="Borrow">
-      <i class="large material-icons">class</i>
+
+
+<div class="collection">
+  {% for r in records %}
+  <div class="collection-item avatar">
+    <img src="../../static/img/book.png" alt="" class="circle">
+    <!-- 
+        Over Here Depending on the 'pubtype'
+        the icon could change.
+        Currently I've Just put one book icon.
+        -abhiniype
+     -->
+    <span class="title">{{r.copy.item.title}}</span>
+    <p>{{r.borrow_date}}<br>
+    </p>
+    <a href="#!" class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Return">
+      <i class="material-icons return" style="font-size:40px">done</i>
     </a>
-    <ul>
-      <!-- Renew Button -->
-      <li>
-        <a class="btn-floating btn-large blue tooltipped" data-position="left" data-delay="50" data-tooltip="Renew">
-          <i class="material-icons">loop</i>
-        </a>
-      </li>
-      <!-- Return Button -->
-      <li>
-        <a class="btn-floating btn-large green tooltipped" data-position="left" data-delay="50" data-tooltip="Return">
-          <i class="material-icons">done</i>
-        </a>
-      </li>
-      <!-- More Buttons Can Be Added Here -->
-    </ul>
   </div>
-        
+  {% endfor %}
+</div>
 
+
+
+
+<!-- FAB (Floating Action Button) -->
+<div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
+  <!-- Borrow Button -->
+  <a class="btn-floating btn-large red tooltipped waves-effect waves-light" data-position="left" data-delay="50" data-tooltip="Borrow">
+    <i class="large material-icons">class</i>
+  </a>
+  <ul>
+    <!-- Renew Button -->
+    <li>
+      <a class="btn-floating btn-large blue tooltipped waves-effect waves-light" data-position="left" data-delay="50" data-tooltip="Renew">
+        <i class="material-icons">loop</i>
+      </a>
+    </li>
+    <!-- Return Button -->
+    <li>
+      <a class="btn-floating btn-large green tooltipped waves-effect waves-light" data-position="left" data-delay="50" data-tooltip="Return">
+        <i class="material-icons">done</i>
+      </a>
+    </li>
+    <!-- More Buttons Can Be Added Here -->
+  </ul>
+</div>
+      
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.collection-item').mouseenter(function(){
+      $(this).addClass("teal lighten-4");
+    });
+    $('.collection-item').mouseleave(function(){
+      $(this).removeClass("teal lighten-4");
+    });
+  });
+</script>
 {% endblock %}

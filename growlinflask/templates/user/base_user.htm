@@ -1,17 +1,17 @@
 {% extends 'base.htm' %}
- {% block extrahead %}
+{% block extrahead %}
  	<style type="text/css">
  		#title{
  			font-weight: 300;
- 			margin-left: 20px;
+ 			margin-left: 200px;
  		}
  	</style>
- {% endblock %}
+{% endblock %}
 {% block content %}
 
 	<nav>
 	<div class="nav-wrapper teal">
-	  <a href="#!" class="brand-logo" id="title">Welcome to Growlin, {{current_user.name}}</a>
+	  <a href="#!" class="brand-logo" id="title" style="margin-left: 20px">Welcome to Growlin, {{current_user.name}}</a>
 	  <ul class="right hide-on-med-and-down">
 	  	<!-- Shelf Button -->
 	    <li>
@@ -36,7 +36,6 @@
 	</nav>        
 
 	<!-- Search bar -->
-
 	<nav>
 	<div class="nav-wrapper teal">
 	  <form>
