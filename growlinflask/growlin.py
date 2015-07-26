@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, abort, flash, request, url_for
 from flask_wtf import Form
 import wtforms as wtf
-from flask.ext.login import LoginManager, login_required, login_user, logout_user
+from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
 from flask.ext.principal import Principal, Permission, RoleNeed
 from flask_admin import Admin, BaseView, expose
 from flask_admin.form import rules
@@ -82,15 +82,21 @@ def logout():
     logout_user()
     flash('You are now logged out.')
     return redirect(url_for('home'))
-    
+
 
 @app.route('/')
 def home():
     return render_template('index.htm')
-    
+
 @app.route('/user/<username>/')
 def user(username):
     return render_template('base.htm', username=username)
+
+@app.route('/shelf/')
+@login_required
+def user_shelf():
+    records = current_user.get_current_borrowings()
+    return render_template('user/shelf.htm', records=records)
 
 # Admin interface
 class AdminRegistry(BaseView):

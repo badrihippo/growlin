@@ -1,0 +1,20 @@
+{% extends 'user/base_user.htm' %}
+{% block user_content %}
+<table>
+  {% for r in records %}
+  <tr>
+    <td>{{r.copy.item.pubtype}}</td>
+    <td>{{r.copy.item.title}}</td>
+    <td>{{r.borrow_date}}</td>
+    <!--...-->
+    <td><a href="#">Return</a></td>
+  </tr>
+  {% endfor %}
+</table>
+
+<ul class="action-button">
+  <li><a href="#">Borrow new book</a></li>
+  <li><a href="#">Return selected </a></li>
+  <li><a href="#">Renew selected </a></li>
+</ul>
+{% endblock %}
