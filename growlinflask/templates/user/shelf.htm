@@ -12,9 +12,27 @@
   {% endfor %}
 </table>
 
-<ul class="action-button">
-  <li><a href="#">Borrow new book</a></li>
-  <li><a href="#">Return selected </a></li>
-  <li><a href="#">Renew selected </a></li>
-</ul>
+  <div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
+    <!-- Borrow Button -->
+    <a class="btn-floating btn-large red tooltipped" data-position="left" data-delay="50" data-tooltip="Borrow">
+      <i class="large material-icons">class</i>
+    </a>
+    <ul>
+      <!-- Renew Button -->
+      <li>
+        <a class="btn-floating btn-large blue tooltipped" data-position="left" data-delay="50" data-tooltip="Renew">
+          <i class="material-icons">loop</i>
+        </a>
+      </li>
+      <!-- Return Button -->
+      <li>
+        <a class="btn-floating btn-large green tooltipped" data-position="left" data-delay="50" data-tooltip="Return">
+          <i class="material-icons">done</i>
+        </a>
+      </li>
+      <!-- More Buttons Can Be Added Here -->
+    </ul>
+  </div>
+        
+
 {% endblock %}
