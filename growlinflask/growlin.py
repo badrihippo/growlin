@@ -144,18 +144,18 @@ class AdminModelBorrowing(ModelView):
     }
 
 
-admin.add_view(AdminModelPublication(Publication, name='Publications', category='Registry'))
-admin.add_view(AdminModelCopy(Copy, name='Copies', category='Registry'))
+admin.add_view(AdminModelPublication(Publication, name='Titles', category='Catalogues'))
+admin.add_view(AdminModelCopy(Copy, name='Accession Register', category='Catalogues'))
 
 admin.add_view(ModelView(Publisher, name='Publishers', category='Metadata'))
 admin.add_view(ModelView(PublishPlace, name='Publish locations', category='Metadata'))
 
-admin.add_view(ModelView(Location, name='Places'))
+admin.add_view(ModelView(Location, name='Locations', category='Metadata'))
 
 admin.add_view(AdminModelUser(User, name='Users', category='Accounts'))
 admin.add_view(ModelView(Group, name='Groups', category='Accounts'))
-admin.add_view(AdminModelBorrowing(Borrowing, name='Borrowings', category='Accounts'))
-admin.add_view(AdminModelBorrowing(PastBorrowing, name='Past borrowings', category='Accounts'))
+admin.add_view(AdminModelBorrowing(Borrowing, name='Current issues', category='Issues'))
+admin.add_view(AdminModelBorrowing(PastBorrowing, name='Past issues', category='Issues'))
 
 # Publication and Copy extra data
 
