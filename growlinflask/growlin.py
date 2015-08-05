@@ -165,7 +165,33 @@ def user_borrow():
             form=cform)
     else:    
         return render_template('user/borrow.htm', form=form)
-
+@app.route('/shelf/<borrowid>/return/', methods=['GET', 'POST'] )
+@login_required
+def user_return(borrowid):
+    try:
+        b = Borrowing.get(Borrowing.id == borrowid)
+    except Borrowing.DoesNotExist:
+        flash('Please decide what you want to return')
+        return redirect(url_for('user_shelf'))
+    form = AccessionEntryForm()
+    if form.validate_on_submit():
+        try:
+            current_user.unborrow(b, form.accession.data)
+        except BorrowError, e:
+            flash(e.message)
+    else:
+        if b.user.username == current_user.username:
+            msg = 'Please enter the accession number for "%(title)s"' % {
+                'title': b.copy.item.display_title}
+            return render_template('shelf/accession_entry.htm', 
+                message=msg,
+                form=form,
+                borrowing=b,
+                sumbit_button_text='Return')
+        else:
+            flash('That item was borrowed by %(name)s, not by you!' % {
+                'name': b.user.name})
+    return redirect(url_for('user_shelf'))
 # Admin interface
 class AdminRegistry(BaseView):
     @expose('/')
