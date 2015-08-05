@@ -110,6 +110,7 @@ def user_borrow():
     cform = BorrowConfirmForm()
     form = AccessionEntryForm()
     if cform.validate_on_submit():
+        # Accession number entered and confirmed
         a = int(cform.accession.data)
         i = int(cform.copy.data)
         try:
@@ -127,6 +128,7 @@ def user_borrow():
             error=e.message,
             form = form)
     elif form.validate_on_submit():
+        # Accession entered but needs to be confirmed
         # Using new BorrowConfirmForm instead of validation-failed one
         cform = BorrowConfirmForm()
         a = form.accession.data
