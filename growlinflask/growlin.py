@@ -121,7 +121,7 @@ def user_borrow():
                 form = form)
         try:
             current_user.borrow(c, a)
-            flash('Your item has been added to the shelf')
+            flash('"%s" has been added to your shelf.' % c.item.title)
             return redirect(url_for('user_shelf'))
         except BorrowError, e:
             return render_template('user/borrow.htm', 
@@ -142,8 +142,20 @@ def user_borrow():
             )
         if cs.count() != 1:
             return render_template('user/borrow.htm', 
-            error='Invalid accession',
-            form = form)
+                error='This book does not exist. Please check the number and try again.',
+                form = form)
+        # Check for already borrowed
+        try:
+            b = Borrowing.get(Borrowing.copy == a)
+            error = 'That item is already borrowed by %(name)s (%(group)s)!' % {
+                'name': b.user.name,
+                'group': b.user.group
+                }
+            return render_template('user/borrow.htm', 
+                error=error,
+                form = form)
+        except Borrowing.DoesNotExist:
+            pass #Not borrowed so it's okay
         c = cs[0]
         cform.title = c.item.display_title
         cform.copy = c.id
