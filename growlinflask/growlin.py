@@ -177,6 +177,8 @@ def user_return(borrowid):
     if form.validate_on_submit():
         try:
             current_user.unborrow(b, form.accession.data)
+            flash('"%(title)s" has been successfully returned' % {
+                'title': b.copy.item.display_title})
         except BorrowError, e:
             flash(e.message)
     else:
