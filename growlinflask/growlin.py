@@ -97,6 +97,60 @@ def user(username):
 def user_shelf():
     records = current_user.get_current_borrowings()
     return render_template('user/shelf.htm', records=records)
+    
+class AccessionEntryForm(Form):
+    accession = wtf.IntegerField('Accession')
+class BorrowConfirmForm(Form):
+    accession = wtf.HiddenField('Accession', 
+        validators=[wtf.validators.DataRequired()])
+    copy = wtf.HiddenField('Copy ID', 
+        validators=[wtf.validators.DataRequired()])
+@app.route('/shelf/borrow/', methods=['GET', 'POST'])
+def user_borrow():
+    cform = BorrowConfirmForm()
+    form = AccessionEntryForm()
+    if cform.validate_on_submit():
+        a = int(cform.accession.data)
+        i = int(cform.copy.data)
+        try:
+            c = Copy.get(id=i)
+        except Copy.DoesNotExist:
+            return render_template('user/borrow.htm', 
+                error='Invalid object',
+                form = form)
+        try:
+            current_user.borrow(c, a)
+            flash('Your item has been added to the shelf')
+            return redirect(url_for('user_shelf'))
+        except BorrowError, e:
+            return render_template('user/borrow.htm', 
+            error=e.message,
+            form = form)
+    elif form.validate_on_submit():
+        # Using new BorrowConfirmForm instead of validation-failed one
+        cform = BorrowConfirmForm()
+        a = form.accession.data
+        
+        cs = Copy.select().join(Publication
+            ).select(
+                Copy.accession,
+                Copy.id,
+                Publication.display_title
+            ).where(Copy.accession == a
+            )
+        if cs.count() != 1:
+            return render_template('user/borrow.htm', 
+            error='Invalid accession',
+            form = form)
+        c = cs[0]
+        cform.title = c.item.display_title
+        cform.copy = c.id
+        print 'c.id, cform.copy = ', c.id, ',', cform.copy
+        cform.accession = c.accession
+        return render_template('user/borrow.htm', 
+            form=cform)
+    else:    
+        return render_template('user/borrow.htm', form=form)
 
 # Admin interface
 class AdminRegistry(BaseView):
