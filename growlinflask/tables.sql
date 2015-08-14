@@ -1,7 +1,8 @@
 CREATE TABLE "group"
 (
   "id" INTEGER NOT NULL PRIMARY KEY,
-  "position" INTEGER NOT NULL, "name" VARCHAR(128) NOT NULL,
+  "position" INTEGER NOT NULL,
+  "name" VARCHAR(128) NOT NULL,
   "visible" SMALLINT NOT NULL
 );
 CREATE INDEX "group_name" ON "group" ("name");
@@ -11,12 +12,12 @@ CREATE TABLE "user"
 (
   "id" INTEGER NOT NULL PRIMARY KEY,
   "username" VARCHAR(32) NOT NULL,
-  "password" VARCHAR(512),
+  "password" VARCHAR2(512),
   "group_id" INTEGER NOT NULL,
-  "refnum" VARCHAR(255),
+  "refnum" VARCHAR2(255),
   "name" VARCHAR(64) NOT NULL,
-  "email" VARCHAR(64),
-  "phone" VARCHAR(16),
+  "email" VARCHAR2(64),
+  "phone" VARCHAR2(16),
   "birthday" DATE,
   "active" SMALLINT NOT NULL,
   FOREIGN KEY ("group_id") REFERENCES "group" ("id")
@@ -36,7 +37,7 @@ CREATE TABLE "publisher"
   "id" INTEGER NOT NULL PRIMARY KEY,
   "name" VARCHAR(256) NOT NULL,
   "address" TEXT,
-  "imprint_of_id" INTEGER,
+  "imprint_of_id" INTEGER, /* do we need this? */
   FOREIGN KEY ("imprint_of_id") REFERENCES "publisher" ("id")
 );
 CREATE INDEX "publisher_imprint_of_id" ON "publisher" ("imprint_of_id");
@@ -44,9 +45,9 @@ CREATE INDEX "publisher_imprint_of_id" ON "publisher" ("imprint_of_id");
 CREATE TABLE "currency"
 (
   "id" INTEGER NOT NULL PRIMARY KEY,
-  "name" VARCHAR(32) NOT NULL,
-  "symbol" VARCHAR(4) NOT NULL,
-  "conversion_factor" REAL NOT NULL
+  "name" VARCHAR2(32) NOT NULL,
+  "symbol" VARCHAR2(4) NOT NULL,
+  "conversion_factor" REAL NOT NULL /* do we need this? */
 );
 CREATE UNIQUE INDEX "currency_name" ON "currency" ("name");
 
@@ -55,8 +56,8 @@ CREATE TABLE "author"
 (
   "id" INTEGER NOT NULL PRIMARY KEY,
   "name" VARCHAR(128) NOT NULL,
-  "is_pseudonym" SMALLINT NOT NULL,
-  "author_sort" VARCHAR(128) NOT NULL
+  "is_pseudonym" SMALLINT NOT NULL, /* do we need this? */
+  "author_sort" VARCHAR(128) NOT NULL /* will be auto-set by standardizing name */
 );
 CREATE INDEX "author_author_sort" ON "author" ("author_sort");
 
