@@ -70,63 +70,88 @@ CREATE TABLE "location"
 );
 CREATE UNIQUE INDEX "location_name" ON "location" ("name");
 
-CREATE TABLE "publication"
-(
-  "id" INTEGER NOT NULL PRIMARY KEY,
-  "title" VARCHAR(512) NOT NULL,
-  "display_title" VARCHAR(256) NOT NULL,
-  "pubtype" VARCHAR(255),
-  "pubdata_id" INTEGER,
-  "identifier" VARCHAR(256),
-  "call_no" VARCHAR(8) NOT NULL,
-  "keywords" VARCHAR(1024),
-  "comments" TEXT
-);
-
-CREATE TABLE "copy"
+CREATE TABLE "item"
 (
   "id" INTEGER NOT NULL PRIMARY KEY,
   "accession" INTEGER NOT NULL,
-  "item_id" INTEGER NOT NULL,
+  "pubtype" VARCHAR(32), /* is the size okay? should it be made into CHAR? */
+  
+  "title" VARCHAR(512) NOT NULL,
+  "display_title" VARCHAR(256) NOT NULL,
+
+  "call_no" VARCHAR(8) NOT NULL,
+  "keywords" VARCHAR(1024), /* still need to decide on best way to do this */
+  "comments" TEXT,
+
   "location_id" INTEGER NOT NULL,
-  "copydata_type" VARCHAR(255),
-  "copydata_id" VARCHAR(255),
-  "price" REAL,
-  "price_currency_id" INTEGER,
+
   "receipt_date" DATE,
   "source" VARCHAR(512),
-  FOREIGN KEY ("item_id") REFERENCES "publication" ("id"),
-  FOREIGN KEY ("location_id") REFERENCES "location" ("id"),
-  FOREIGN KEY ("price_currency_id") REFERENCES "currency" ("id")
-);
-CREATE INDEX "copy_price_currency_id" ON "copy" ("price_currency_id");
-CREATE UNIQUE INDEX "copy_accession" ON "copy" ("accession");
-CREATE INDEX "copy_item_id" ON "copy" ("item_id");
-CREATE INDEX "copy_location_id" ON "copy" ("location_id");
+  "price" REAL,
+  "price_currency_id" INTEGER,
 
+  "identifier" VARCHAR2(256),
+
+  /* now comes the type-specific data */
+
+  "publisher_id" INTEGER,
+  "pub_place_id" INTEGER,
+  "pub_date" DATE,
+
+  "cover_content" VARCHAR2(512), /* make it into text? */
+  "issue" INTEGER,
+  "vol_no" INTEGER,
+  "vol_issue" INTEGER,
+  "date" DATE,
+  "date_hide_day" SMALLINT, /* eg. 'Jun 2015' instead of '12 Jun 2015' */
+
+  /* foreign keys */
+  
+  FOREIGN KEY ("location_id") REFERENCES "location" ("id"),
+  FOREIGN KEY ("price_currency_id") REFERENCES "currency" ("id"),
+
+
+  /* type-specific foreign-keys */
+
+  FOREIGN KEY ("publisher_id") REFERENCES "publisher" ("id"),
+  FOREIGN KEY ("pub_place_id") REFERENCES "publishplace" ("id")
+  
+);
+
+
+CREATE INDEX "item_price_currency_id" ON "item" ("price_currency_id");
+CREATE UNIQUE INDEX "item_accession" ON "item" ("accession");
+CREATE INDEX "item_location_id" ON "item" ("location_id");
+
+/* type-specific indexes... */
+/* ...or is it called "indices"? */
+CREATE INDEX "item_publisher_id" ON "item" ("publisher_id");
+CREATE INDEX "item_pub_place_id" ON "item" ("pub_place_id");
 
 CREATE TABLE "borrowing"
 (
   "id" INTEGER NOT NULL PRIMARY KEY,
-  "copy_id" INTEGER NOT NULL,
+  "item_id" INTEGER NOT NULL,
   "user_id" INTEGER NOT NULL,
   "group_id" INTEGER NOT NULL,
   "borrow_date" DATETIME NOT NULL,
   "renew_times" INTEGER NOT NULL,
   "is_longterm" SMALLINT NOT NULL,
-  FOREIGN KEY ("copy_id") REFERENCES "copy" ("id"),
+  FOREIGN KEY ("item_id") REFERENCES "item" ("id"),
   FOREIGN KEY ("user_id") REFERENCES "user" ("id"),
   FOREIGN KEY ("group_id") REFERENCES "group" ("id"));
 CREATE INDEX "borrowing_group_id" ON "borrowing" ("group_id");
 CREATE INDEX "borrowing_user_id" ON "borrowing" ("user_id");
-CREATE UNIQUE INDEX "borrowing_copy_id" ON "borrowing" ("copy_id");
+CREATE UNIQUE INDEX "borrowing_item_id" ON "borrowing" ("item_id");
 
 
 CREATE TABLE "pastborrowing"
 (
   "id" INTEGER NOT NULL PRIMARY KEY,
-  "accession" INTEGER NOT NULL, "user_id" INTEGER NOT NULL,
-  "group_id" INTEGER NOT NULL, "borrow_date" DATETIME NOT NULL,
+  "accession" INTEGER NOT NULL, /* should this be made an FK? */
+  "user_id" INTEGER NOT NULL,
+  "group_id" INTEGER NOT NULL,
+  "borrow_date" DATETIME NOT NULL,
   "return_date" DATETIME NOT NULL,
   FOREIGN KEY ("user_id") REFERENCES "user" ("id"),
   FOREIGN KEY ("group_id") REFERENCES "group" ("id")
@@ -134,26 +159,3 @@ CREATE TABLE "pastborrowing"
 CREATE INDEX "pastborrowing_group_id" ON "pastborrowing" ("group_id");
 CREATE INDEX "pastborrowing_user_id" ON "pastborrowing" ("user_id");
 
-
-CREATE TABLE "copybook"
-(
-  "id" INTEGER NOT NULL PRIMARY KEY,
-  "pub_name_id" INTEGER, "pub_place_id" INTEGER,
-  "pub_date" DATE,
-  FOREIGN KEY ("pub_name_id") REFERENCES "publisher" ("id"),
-  FOREIGN KEY ("pub_place_id") REFERENCES "publishplace" ("id")
-);
-CREATE INDEX "copybook_pub_place_id" ON "copybook" ("pub_place_id");
-CREATE INDEX "copybook_pub_name_id" ON "copybook" ("pub_name_id");
-
-
-CREATE TABLE "pubperiodical"
-(
-  "id" INTEGER NOT NULL PRIMARY KEY,
-  "cover_content" VARCHAR(512),
-  "issue" INTEGER,
-  "vol_no" INTEGER,
-  "vol_issue" INTEGER,
-  "date" DATE,
-  "date_hide_day" SMALLINT
-);
