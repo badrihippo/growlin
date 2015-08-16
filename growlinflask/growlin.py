@@ -100,6 +100,12 @@ def user(username):
 def user_shelf():
     records = current_user.get_current_borrowings()
     return render_template('user/shelf.htm', records=records)
+
+@app.route('/shelf/history/')
+@login_required
+def user_history():
+    records = current_user.get_past_borrowings()
+    return render_template('shelf/history.htm', records=records)
     
 class AccessionEntryForm(Form):
     accession = wtf.IntegerField('Accession')

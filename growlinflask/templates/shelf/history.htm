@@ -1,0 +1,80 @@
+{% extends 'user/base_user.htm' %}
+{% block extrahead %}
+  <style type="text/css">
+      body{
+        background-color: #eeeeee;
+      }
+  </style>
+{% endblock %}
+{% block user_content %}
+
+<div class="collection">
+  {% for r in records %}
+  <div class="collection-item avatar">
+    <img src="../../static/img/book.png" alt="" class="circle">
+    <!-- 
+        Over Here Depending on the 'pubtype'
+        the icon could change.
+        Currently I've Just put one book icon.
+        -abhiniype
+     -->
+    <span class="title"><b>{{r.item.title}}</b></span>
+    <p><i>{{r.borrow_date}}</i><br>
+    </p>
+    <a href="#" class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="More info">
+      <i class="material-icons info" style="font-size:40px">done</i>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+
+
+
+<!-- FAB (Floating Action Button) -->
+<div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
+  <!-- Borrow Button -->
+  <a class="btn-floating btn-large red tooltipped waves-effect waves-light" 
+  data-position="left" 
+  data-delay="50" 
+  data-tooltip="Borrow"
+  href="{{url_for('user_borrow')}}"
+  onclick="Materialize.toast('Thanks For Borrowing!', 4000)">
+    <i class="large material-icons">class</i>
+  </a>
+  <ul>
+    <!-- Renew Button -->
+    <li>
+      <a class="btn-floating btn-large blue tooltipped waves-effect waves-light"
+       data-position="left" 
+       data-delay="50" 
+       data-tooltip="Renew"
+       onclick="Materialize.toast('When Are You Going to Finish it!', 4000)">
+        <i class="material-icons">loop</i>
+      </a>
+    </li>
+    <!-- Return Button -->
+    <li>
+      <a class="btn-floating btn-large green tooltipped waves-effect waves-light" 
+      data-position="left" 
+      data-delay="50" 
+      data-tooltip="Return"
+      onclick="Materialize.toast('Thanks for Returning! Hope you enjoyed it!', 4000)">
+        <i class="material-icons">done</i>
+      </a>
+    </li>
+    <!-- More Buttons Can Be Added Here -->
+  </ul>
+</div>
+      
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.collection-item').mouseenter(function(){
+      $(this).addClass("teal lighten-4");
+    });
+    $('.collection-item').mouseleave(function(){
+      $(this).removeClass("teal lighten-4");
+    });
+  });
+</script>
+{% endblock %}
