@@ -86,7 +86,10 @@ def logout():
 
 @app.route('/')
 def home():
-    return render_template('index.htm')
+    if current_user.is_authenticated():
+        return redirect(url_for('user_shelf'))
+    else:
+	return redirect(url_for('login'))
 
 @app.route('/user/<username>/')
 def user(username):
