@@ -27,18 +27,15 @@ CREATE INDEX "user_group_id" ON "user" ("group_id");
 
 CREATE TABLE "publishplace"
 (
-  "id" INTEGER NOT NULL PRIMARY KEY,
-  "name" VARCHAR(512) NOT NULL
+  "name" VARCHAR(512) NOT NULL PRIMARY KEY
 );
 CREATE UNIQUE INDEX "publishplace_name" ON "publishplace" ("name");
 
 CREATE TABLE "publisher"
 (
   "id" INTEGER NOT NULL PRIMARY KEY,
-  "name" VARCHAR(256) NOT NULL,
-  "address" TEXT,
-  "imprint_of_id" INTEGER, /* do we need this? */
-  FOREIGN KEY ("imprint_of_id") REFERENCES "publisher" ("id")
+  "name" VARCHAR(128) NOT NULL,
+  "address" VARCHAR(1024), /* is the length ok? */
 );
 CREATE INDEX "publisher_imprint_of_id" ON "publisher" ("imprint_of_id");
 
