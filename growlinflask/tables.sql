@@ -41,11 +41,10 @@ CREATE INDEX "publisher_imprint_of_id" ON "publisher" ("imprint_of_id");
 
 CREATE TABLE "currency"
 (
-  "id" INTEGER NOT NULL PRIMARY KEY,
-  "name" VARCHAR(32) NOT NULL,
-  "symbol" VARCHAR(4) NOT NULL,
-  "conversion_factor" REAL NOT NULL /* do we need this? */
+  "name" VARCHAR(32) NOT NULL PRIMARY KEY,
+  "symbol" CHAR(4) NOT NULL, /* should *this* be made pk instead? */
 );
+/* Can the following line be removed, since primary_key implies unique index? */
 CREATE UNIQUE INDEX "currency_name" ON "currency" ("name");
 
 
