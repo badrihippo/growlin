@@ -1,11 +1,11 @@
-CREATE TABLE "group"
+CREATE TABLE "user_group"
 (
   "id" INTEGER NOT NULL PRIMARY KEY,
   "position" INTEGER NOT NULL,
   "name" VARCHAR(128) NOT NULL,
   "visible" SMALLINT NOT NULL
 );
-CREATE INDEX "group_name" ON "group" ("name");
+CREATE INDEX "user_group_name" ON "user_group" ("name");
 
 
 CREATE TABLE "user"
@@ -20,7 +20,7 @@ CREATE TABLE "user"
   "phone" VARCHAR(16),
   "birthday" DATE,
   "active" SMALLINT NOT NULL,
-  FOREIGN KEY ("group_id") REFERENCES "group" ("id")
+  FOREIGN KEY ("group_id") REFERENCES "user_group" ("id")
 );
 CREATE UNIQUE INDEX "user_username" ON "user" ("username");
 CREATE INDEX "user_group_id" ON "user" ("group_id");
@@ -139,7 +139,7 @@ CREATE TABLE "borrowing"
   "is_longterm" SMALLINT NOT NULL,
   FOREIGN KEY ("item_id") REFERENCES "item" ("id"),
   FOREIGN KEY ("user_id") REFERENCES "user" ("id"),
-  FOREIGN KEY ("group_id") REFERENCES "group" ("id"));
+  FOREIGN KEY ("group_id") REFERENCES "user_group" ("id"));
 CREATE INDEX "borrowing_group_id" ON "borrowing" ("group_id");
 CREATE INDEX "borrowing_user_id" ON "borrowing" ("user_id");
 CREATE UNIQUE INDEX "borrowing_item_id" ON "borrowing" ("item_id");
@@ -154,8 +154,8 @@ CREATE TABLE "pastborrowing"
   "borrow_date" DATETIME NOT NULL,
   "return_date" DATETIME NOT NULL,
   FOREIGN KEY ("user_id") REFERENCES "user" ("id"),
-  FOREIGN KEY ("group_id") REFERENCES "group" ("id")
+  FOREIGN KEY ("group_id") REFERENCES "user_group" ("id")
 );
-CREATE INDEX "pastborrowing_group_id" ON "pastborrowing" ("group_id");
+CREATE INDEX "pastborrowing_group_id" ON "pastborrowing" ("user_group_id");
 CREATE INDEX "pastborrowing_user_id" ON "pastborrowing" ("user_id");
 
