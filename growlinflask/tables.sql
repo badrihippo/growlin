@@ -12,12 +12,12 @@ CREATE TABLE "user"
 (
   "id" INTEGER NOT NULL PRIMARY KEY,
   "username" VARCHAR(32) NOT NULL,
-  "password" VARCHAR2(512),
+  "password" VARCHAR(512),
   "group_id" INTEGER NOT NULL,
-  "refnum" VARCHAR2(255),
+  "refnum" VARCHAR(255),
   "name" VARCHAR(64) NOT NULL,
-  "email" VARCHAR2(64),
-  "phone" VARCHAR2(16),
+  "email" VARCHAR(64),
+  "phone" VARCHAR(16),
   "birthday" DATE,
   "active" SMALLINT NOT NULL,
   FOREIGN KEY ("group_id") REFERENCES "group" ("id")
@@ -45,8 +45,8 @@ CREATE INDEX "publisher_imprint_of_id" ON "publisher" ("imprint_of_id");
 CREATE TABLE "currency"
 (
   "id" INTEGER NOT NULL PRIMARY KEY,
-  "name" VARCHAR2(32) NOT NULL,
-  "symbol" VARCHAR2(4) NOT NULL,
+  "name" VARCHAR(32) NOT NULL,
+  "symbol" VARCHAR(4) NOT NULL,
   "conversion_factor" REAL NOT NULL /* do we need this? */
 );
 CREATE UNIQUE INDEX "currency_name" ON "currency" ("name");
@@ -90,7 +90,7 @@ CREATE TABLE "item"
   "price" REAL,
   "price_currency_id" INTEGER,
 
-  "identifier" VARCHAR2(256),
+  "identifier" VARCHAR(256),
 
   /* now comes the type-specific data */
 
@@ -98,7 +98,7 @@ CREATE TABLE "item"
   "pub_place_id" INTEGER,
   "pub_date" DATE,
 
-  "cover_content" VARCHAR2(512), /* make it into text? */
+  "cover_content" VARCHAR(512), /* make it into text? */
   "issue" INTEGER,
   "vol_no" INTEGER,
   "vol_issue" INTEGER,
