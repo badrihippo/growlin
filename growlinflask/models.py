@@ -440,7 +440,7 @@ def create_test_data():
 
     print 'Inserting test data: ',
 
-    print '[groups]',
+    print '[users]',
     g = Group.create(name='Earth')
     User.create(name='Moon', password='pass', group=g)
 
@@ -460,6 +460,14 @@ def create_test_data():
     User.create(name='Tethys', group=g)
     User.create(name='Mimas', group=g)
     User.create(name='Dione', group=g)
+
+    print '[roles]',
+
+    r = Role.create(name='admin', description='access the admin interface')
+    u = UserRoles.create(role=r, user=User.get(username='europa'))
+    u = UserRoles.create(role=r, user=User.get(username='moon'))
+
+    print '[locations]',
 
     loc_main = Location.create(name='Main')
 
