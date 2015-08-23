@@ -52,7 +52,6 @@ CREATE TABLE "author"
 (
   "id" INTEGER NOT NULL PRIMARY KEY,
   "name" VARCHAR(128) NOT NULL,
-  "is_pseudonym" SMALLINT NOT NULL, /* do we need this? */
   "author_sort" VARCHAR(128) NOT NULL /* will be auto-set by standardizing name */
 );
 CREATE INDEX "author_author_sort" ON "author" ("author_sort");
