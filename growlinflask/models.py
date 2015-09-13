@@ -7,6 +7,7 @@ from datetime import datetime
 # TODO: Move to separate file if there are many of them?
 class GrowlinException(Exception): pass
 class BorrowError(GrowlinException): pass
+class AlreadyBorrowed(BorrowError): pass
 
 db = mongo.connect('growlindb')
 
@@ -58,107 +59,97 @@ class User(mongo.Document, UserMixin):
     roles = mongo.ListField(mongo.ReferenceField(UserRole))
 
     def __unicode__(self):
-        return '%(group)s - %(refnum)s%(name)s%(username)s' % {
+        return '%(name)s, %(group)s' % {
             'name': self.name,
-            'refnum': self.refnum + ' - ' if self.refnum else '',
-            'username': ' (' + self.username + ')' if self.username else '',
             'group': self.group.name}
 
-    # TODO: Update this function!
-    def borrow(self, copy, accession=None, longterm=False, interactive=False):
+    def borrow(self, item, accession=None, longterm=False, interactive=False):
         '''
-        Marks a Copy as "borrowed" using the Borrowed database model, after
+        Marks an Item as "borrowed" by filling the borrow_current field, after
         checking for valid accession number. Setting the "interactive" flag
         will cause the function to open a prompt for dynamic input of the
         accession number.
 
-        This function returns the newly created Borrowing instance
+        This function returns an instance of the borrowed item.
         '''
+        # Check arguments
+        if not isinstance(item, Item):
+            raise TypeError('"item" must be an instance of Item')
         
+        # Make sure item is not already borrowed
+        if item.borrow_current is not None:
+            raise AlreadyBorrowed('"%(title)s" is already borrowed!' %
+                {'title': item.get_display_title()})
+
+        # Check for accession number mismatch
         if interactive and accession is None:
             accession = int(raw_input('Enter accession for "%(title)s": ' %
-                {'title': copy.item.title}))
-        if accession != copy.accession:
-            raise BorrowError('Accession numbers do not match.')
-        # Reborrowing will stop because of unique constraint on
-        # Borrowing.accession field
-        try:
-            b = Borrowing.create(
+                {'title': item.get_display_title()}))
+        if accession != item.accession:
+            raise BorrowError('Accession numbers do not match')
+       
+        b = item.borrow_current = BorrowCurrent(
                 user=self,
-                copy=copy,
-                group=self.group,
                 borrow_date = datetime.now(),
                 is_longterm = longterm)
-            return b
-        except pw.IntegrityError, e:
-            if e.message == 'UNIQUE constraint failed: borrowing.copy_id':
-                raise BorrowError('Item is already borrowed!')
-            else:
-                raise e
+        # TODO: Race condition protection?
+        b.save()
+        return b
 
     # "return" is a reserved word!
-    # TODO: Update this function!
-    def unborrow(self, copy_or_borrow, accession=None, interactive=False):
+    def unborrow(self, item, accession=None, interactive=False):
         '''
-        Marks a Copy as "returned" using the database models, after checking
-        for valid accession number. You can give either the actual Borrowing
-        instance or the Copy object that needs to be returned. Setting the
-        "interactive" flag will cause  the function to open a prompt for
-        dynamic input of the accession number.
+        Marks an Item as "returned" using the database models, after checking
+        for valid accession number. A BorrowError is raised if either the item
+        is not borrowed by that user or the accession numbers do not match.
+        Setting the "interactive" flag will cause the function to open a prompt
+        for dynamic input of the accession number.
 
-        This function deletes the Borrowing model and returns a newly created
-        PastBorrowing model instance used to hold historic records. 
+        This function clears the borrow_current field and returns a newly created
+        PastBorrowing model instance used to hold historic records.
         '''
 
-        if type(copy_or_borrow) == Copy:
-            try:
-                b = Borrowing.get(
-                    Borrowing.copy == copy_or_borrow,
-                    Borrowing.user == self)
-            except Borrowing.DoesNotExist:
-                raise BorrowError('You have not borrowed that item!')
-        elif type(copy_or_borrow) == Borrowing:
-            if copy_or_borrow.user != self:
-                raise BorrowError('That item is not borrowed by you!')
-            else:
-                b = copy_or_borrow
-        else:
-            raise ValueError('copy_or_borrow must be either a Copy or Borrowing instance')
+        # Check arguments
+        if not isinstance(item, Item):
+            raise TypeError('"item" must be an instance of Item')
+        # Refresh to get most recent record
+        item.reload()
+        
+        # Do user check
+        if item.borrow_current.user != self:
+            raise BorrowError('You have not borrowed that item')
 
         if interactive and accession is None:
             accession = int(raw_input('Enter accession for "%(title)s": ' %
-                {'title': b.copy.item.title}))
-        if accession != b.copy.accession:
-            raise BorrowError('Accession numbers do not match.')
+                {'title': item.title}))
+        if accession != item.accession:
+            raise BorrowError('Accession numbers do not match')
                 
-        p = PastBorrowing.create(
+        p = BorrowPast(
+            item=item,
             user=self,
-            item=b.copy.item,
-            group=self.group,
-            borrow_date = b.borrow_date,
+            user_group=self.group.name,
+            borrow_date = item.borrow_current.borrow_date,
             return_date = datetime.now()
             )
-        b.delete_instance()
+        del(item.borrow_current)
+        p.save()
+        item.save()
         return p
 
     def get_current_borrowings(self):
         '''
-        Gets the list of records for books currently borrowed by the user.
+        Gets the list of books currently borrowed by the user.
         '''
-
-        b = Borrowing.select().where(Borrowing.user == self)
-        c = Copy.select().join(Publication)
-        return pw.prefetch(b,c).select()
+        
+        return Item.objects(borrow_current__user=self)
         
     def get_past_borrowings(self):
         '''
         Gets the list of records for books previously borrowed by the user.
         '''
-
-        #TODO: Expensive query! Needs to be fine-tuned
-        b = PastBorrowing.select().where(PastBorrowing.user == self)
-        p = Publication.select()
-        return pw.prefetch(b,p).select()
+        
+        return PastBorrowing.objects(user=self).select_related()
 
 class Publisher(mongo.Document):
     name = mongo.StringField(max_length=128, unique=True)
@@ -181,8 +172,8 @@ class BorrowCurrent(mongo.EmbeddedDocument):
     '''
     Tracks one instance of an accessed item getting borrowed.
     '''
-    user = mongo.ReferenceField(User)
-    borrow_date = mongo.DateTimeField()
+    user = mongo.ReferenceField(User, required=True)
+    borrow_date = mongo.DateTimeField(required=True)
     due_date = mongo.DateTimeField()
 
     # TODO: Discuss if this is required
@@ -222,7 +213,7 @@ class Item(mongo.Document):
     receipt_date = mongo.DateTimeField() # TODO: Possible to do only date?
     source = mongo.StringField(max_length=64) # Where it came from
 
-    borrow_details = mongo.EmbeddedDocumentField(BorrowCurrent)
+    borrow_current = mongo.EmbeddedDocumentField(BorrowCurrent)
     
     # TODO: May be implemented later
     #display_title = mongo.StringField(max_length=256,
@@ -233,6 +224,9 @@ class Item(mongo.Document):
     def __unicode__(self):
         return '%(title)s' % {
             'title': self.title}
+
+    def get_display_title(self):
+        return self.title
 
     meta = {'allow_inheritance': True}
 
