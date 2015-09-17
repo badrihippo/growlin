@@ -9,7 +9,7 @@ class GrowlinException(Exception): pass
 class BorrowError(GrowlinException): pass
 class AlreadyBorrowed(BorrowError): pass
 
-db = mongo.connect('growlindb')
+#db = mongo.connect('growlindb')
 
 # Admin masters
 
