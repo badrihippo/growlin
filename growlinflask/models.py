@@ -149,7 +149,7 @@ class User(mongo.Document, UserMixin):
         Gets the list of records for books previously borrowed by the user.
         '''
         
-        return PastBorrowing.objects(user=self).select_related()
+        return BorrowPast.objects(user=self)
 
 class Publisher(mongo.Document):
     name = mongo.StringField(max_length=128, unique=True)
