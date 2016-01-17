@@ -12,7 +12,40 @@ class BorrowError(GrowlinException): pass
 
 db = pw.SqliteDatabase('growlin.db')
 
+# Thanks to Nils Philippsen on StackOverflow: http://stackoverflow.com/a/2544313/1196444
+class classproperty(property):
+    '''
+    Decorate a property so that it works like a property for the whole
+    class (ie. the class itself, not the class instance).
+    '''
+    def __get__(self, obj, type_):
+        return self.fget.__get__(None, type_)()
+
+    def __set__(self, obj, value):
+        cls = type(obj)
+        return self.fset.__get__(None, cls)(value)
+
+class ObjectManager():
+    '''
+    Manager to manage Growlin's peewee models using a MongoEngine-style
+    syntax
+    '''
+    def __init__(self, model, *args, **kwargs):
+        self.model = model
+
+    def get(self, *args, **kwargs):
+        self.model.get(*args, **kwargs)
+
 class BaseModel(pw.Model):
+    '''
+    def __new__(cls, *args, **kwargs):
+        cls.objects = ObjectManager()
+        return cls.__new__(cls, *args, **kwargs)
+    '''
+    @classproperty
+    @classmethod
+    def objects(self):
+        return ObjectManager(self)
     class Meta:
         database = db
 
