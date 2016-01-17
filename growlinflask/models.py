@@ -295,7 +295,7 @@ class User(BaseModel, UserMixin):
                 
         p = PastBorrowing.create(
             user=self,
-            accession=b.copy.accession,
+            item=b.copy.item,
             group=self.group,
             borrow_date = b.borrow_date,
             return_date = datetime.now()
@@ -311,6 +311,16 @@ class User(BaseModel, UserMixin):
         b = Borrowing.select().where(Borrowing.user == self)
         c = Copy.select().join(Publication)
         return pw.prefetch(b,c).select()
+        
+    def get_past_borrowings(self):
+        '''
+        Gets the list of records for books previously borrowed by the user.
+        '''
+
+        #TODO: Expensive query! Needs to be fine-tuned
+        b = PastBorrowing.select().where(PastBorrowing.user == self)
+        p = Publication.select()
+        return pw.prefetch(b,p).select()
 
 class Role(BaseModel):
     name = pw.CharField(unique=True)
@@ -355,7 +365,7 @@ class PastBorrowing(BaseModel):
     concise way, as lookups are not going to be made as frequently as
     in the Borrowing model.
     '''
-    accession = pw.IntegerField() # Non-enforced FK to Accession
+    item = pw.ForeignKeyField(Publication)
     user = pw.ForeignKeyField(User)
     group = pw.ForeignKeyField(Group)
     borrow_date = pw.DateTimeField()
@@ -430,7 +440,7 @@ def create_test_data():
 
     print 'Inserting test data: ',
 
-    print '[groups]',
+    print '[users]',
     g = Group.create(name='Earth')
     User.create(name='Moon', password='pass', group=g)
 
@@ -450,6 +460,14 @@ def create_test_data():
     User.create(name='Tethys', group=g)
     User.create(name='Mimas', group=g)
     User.create(name='Dione', group=g)
+
+    print '[roles]',
+
+    r = Role.create(name='admin', description='access the admin interface')
+    u = UserRoles.create(role=r, user=User.get(username='europa'))
+    u = UserRoles.create(role=r, user=User.get(username='moon'))
+
+    print '[locations]',
 
     loc_main = Location.create(name='Main')
 

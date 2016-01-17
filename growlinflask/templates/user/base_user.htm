@@ -10,8 +10,8 @@
 {% block content %}
 
 	<nav>
-	<div class="nav-wrapper teal">
-	  <a href="#!" class="brand-logo" id="title" style="margin-left: 20px">Welcome to Growlin, {{current_user.name}}</a>
+	<div class="nav-wrapper teal" style="padding-left:20px">
+	  <a href="#!" class="brand-logo" style="font-weight: 300">Welcome to Growlin, {{current_user.name}}</a>
 	  <ul class="right hide-on-med-and-down">
 	  	<!-- Shelf Button -->
 	    <li>
@@ -21,7 +21,7 @@
 	    </li>
 	    <!-- History Button -->
 	    <li>
-	        <a href="#"  class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="History">
+	        <a href="{{url_for('user_history')}}"  class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="History">
 	        	<i class="material-icons">history</i>
 	        </a>
 	    </li>
