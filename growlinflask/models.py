@@ -47,8 +47,8 @@ class Currency(mongo.Document):
 # Librarian Masters
 
 class User(mongo.Document, UserMixin):
-    # username = mongo.StringField(32, unique=True)
-    # password = mongo.StringField(512, null=True)
+    username = mongo.StringField(max_length=32, unique=True)
+    password = mongo.StringField(max_length=512)
     # refnum = mongo.StringField(null=True)
     name = mongo.StringField(max_length=24, required=True)
     group = mongo.ReferenceField(UserGroup, required=True)
