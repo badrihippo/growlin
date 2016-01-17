@@ -116,7 +116,7 @@ class User(mongo.Document, UserMixin):
         item.reload()
         
         # Do user check
-        if item.borrow_current.user != self:
+        if item.borrow_current is None or item.borrow_current.user != self:
             raise BorrowError('You have not borrowed that item')
 
         if interactive and accession is None:
