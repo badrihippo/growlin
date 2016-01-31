@@ -8,22 +8,8 @@
 {% endblock %}
 {% block user_content %}
 
-<!-- <table>
-  {% for r in records %}
-  <tr>
-    <td>{{r.copy.item.pubtype}}</td>
-    <td>{{r.copy.item.title}}</td>
-    <td>{{r.borrow_date}}</td>
-        <td><a href="#">Return</a></td>
-  </tr>
-  {% endfor %}
-</table>
- -->
-
-
-
 <div class="collection">
-  {% for r in records %}
+  {% for item in records %}
   <div class="collection-item avatar">
     <img src="../../static/img/book.png" alt="" class="circle">
     <!-- 
@@ -32,10 +18,10 @@
         Currently I've Just put one book icon.
         -abhiniype
      -->
-    <span class="title"><b>{{r.copy.item.title}}</b></span>
-    <p><i>{{r.borrow_date}}</i><br>
+    <span class="title"><b>{{item.title}}</b></span>
+    <p><i>{{item.borrow_current.borrow_date}}</i><br>
     </p>
-    <a href="{{ url_for('user_return', borrowid=r.id) }}" class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Return">
+    <a href="{{ url_for('user_return', borrowid=item.id) }}" class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Return">
       <i class="material-icons return" style="font-size:40px">done</i>
     </a>
   </div>

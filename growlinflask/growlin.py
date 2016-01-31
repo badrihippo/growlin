@@ -5,7 +5,7 @@ from flask.ext.login import LoginManager, login_required, login_user, logout_use
 from flask.ext.principal import Principal, Permission, RoleNeed
 from flask_admin import Admin, BaseView, expose
 from flask_admin.form import rules
-from flask_admin.contrib.peewee.view import ModelView
+from flask_admin.contrib.mongoengine import ModelView
 from wtfpeewee.orm import model_form
 #from flask.ext.security import Security, PeeweeUserDatastore, login_required
 from flask_principal import Principal, Permission, RoleNeed, UserNeed, Identity, AnonymousIdentity, identity_changed, identity_loaded
@@ -26,10 +26,10 @@ login_manager.init_app(app)
 def load_user(userid=None, username=None):
     try:
         if userid is not None:
-            user = User.get(User.id == userid)
+            user = User.objects.get(User.id == userid)
         elif username is not None:
-	    user = User.get(User.username == username)
-    except pw.DoesNotExist:
+	    user = User.objects.get(User.username == username)
+    except db.DoesNotExist:
 	return None
     return user
     
@@ -68,7 +68,15 @@ def login():
     # client-side form data. For example, WTForms is a library that will
     # handle this for us.
     form = LoginForm()
-    group_list = Group.select()
+    group_dict = {}
+    # Map users to groups
+    for user in User.objects:
+	if group_dict.has_key(user.group.name):
+	    group_dict[user.group.name].append(user)
+	else:
+	    group_dict[user.group.name] = [user]
+    # Serialize to list
+    group_list = [{'name': k, 'users': v} for k,v in group_dict.items()]
     if form.validate_on_submit():
         # Login and validate the user.
         user = load_user(username=form.username.data)
@@ -85,7 +93,7 @@ def login():
 		# Inform Principal of changed identity
 		identity_changed.send(
 		    current_app._get_current_object(),
-		    identity=Identity(user.id))
+		    identity=Identity(str(user.id)))
 	
 	        flash('Logged in successfully.')
 	
@@ -148,6 +156,8 @@ class BorrowConfirmForm(Form):
         validators=[wtf.validators.DataRequired()])
 @app.route('/shelf/borrow/', methods=['GET', 'POST'])
 def user_borrow():
+    raise NotImplementedError('This feature is yet to be updated for the new data models')
+    # FIXME: Make this work with the new data models
     cform = BorrowConfirmForm()
     form = AccessionEntryForm()
     if cform.validate_on_submit():
@@ -209,6 +219,8 @@ def user_borrow():
 @app.route('/shelf/<borrowid>/return/', methods=['GET', 'POST'] )
 @login_required
 def user_return(borrowid):
+    raise NotImplementedError('This feature is yet to be updated for the new data models')
+    # FIXME: Make this work with the new data models
     try:
         b = Borrowing.get(Borrowing.id == borrowid)
     except Borrowing.DoesNotExist:
@@ -258,7 +270,7 @@ class AdminModelPublication(BaseModelView):
     form_create_rules = ('title', 'display_title', 'call_no', 'keywords', 'comments', 'identifier', 'copies')
     form_excluded_columns = ['pubtype', 'pubdata_id']
     edit_modal = True
-    inline_models = (Copy,)
+    #inline_models = (Copy,)
 
 class AdminModelCopy(BaseModelView):
     form_excluded_columns = ['copydata_type', 'copydata_id']
@@ -276,35 +288,23 @@ class AdminModelBorrowing(BaseModelView):
     form_excluded_columns = ['copydata_type', 'copydata_id']
     form_ajax_refs = {
 	'user': {
-	    'fields': ['refnum', 'username', 'name', 'email'],
+	    'fields': ['username', 'name', 'email'],
 	    'page_size': 10
-	},
-	'group': {
-	    'fields': ['name'],
-	    'page_size': 5,
 	},
     }
 
-admin.add_view(AdminModelPublication(Publication, name='Titles', category='Catalogues'))
-admin.add_view(AdminModelCopy(Copy, name='Accession Register', category='Catalogues'))
+admin.add_view(AdminModelPublication(Item, name='Publications', category='Registry'))
 
 admin.add_view(BaseModelView(Publisher, name='Publishers', category='Metadata'))
 admin.add_view(BaseModelView(PublishPlace, name='Publish locations', category='Metadata'))
 
-admin.add_view(ModelView(Location, name='Locations', category='Metadata'))
+admin.add_view(BaseModelView(CampusLocation, name='Places'))
 
 admin.add_view(AdminModelUser(User, name='Users', category='Accounts'))
-admin.add_view(ModelView(Group, name='Groups', category='Accounts'))
-admin.add_view(AdminModelBorrowing(Borrowing, name='Current issues', category='Issues'))
-admin.add_view(AdminModelBorrowing(PastBorrowing, name='Past issues', category='Issues'))
+admin.add_view(BaseModelView(UserGroup, name='Groups', category='Accounts'))
+admin.add_view(AdminModelBorrowing(BorrowPast, name='Past borrowings', category='Accounts'))
 
-# Publication and Copy extra data
-
-for m in all_pubtypes.union(all_pubcopies):
-    # TODO: Remove reference to private _meta property!
-    admin.add_view(BaseModelView(m,
-        name=m._meta.verbose_name if hasattr(m._meta, 'verbose_name') else m._meta.name,
-	category='Extra Publication Data'))
+admin.add_view(BaseModelView(UserRole, name='Roles', category='Admin'))
     
 if __name__ == '__main__':
     app.run()
