@@ -1,8 +1,12 @@
 from flask.ext.admin import Admin, BaseView, expose
-from flask_admin.contrib.mongoengine import ModelView
 from .app import app
 from .auth import Permission, RoleNeed
 from .models import *
+
+if app.config['GROWLIN_USE_PEEWEE']:
+    from flask.ext.admin.contrib.peewee import ModelView
+else:
+    from flask.ext.admin.contrib.mongoengine import ModelView
 
 admin = Admin(app)
 
