@@ -24,23 +24,9 @@ class AdminModelUser(BaseModelView):
     column_list = ('username', 'name', 'group', 'active')
 
 class AdminModelPublication(BaseModelView):
-    form_create_rules = ('title', 'display_title', 'call_no', 'keywords', 'comments', 'identifier', 'copies')
-    form_excluded_columns = ['pubtype', 'pubdata_id']
+    form_create_rules = ('accession', 'title', 'subtitle', 'keywords', 'comments', 'campus_location', 'price', 'price_currency', 'receipt_date', 'source')
     edit_modal = True
-    #inline_models = (Copy,)
 
-class AdminModelCopy(BaseModelView):
-    form_excluded_columns = ['copydata_type', 'copydata_id']
-    form_ajax_refs = {
-	'item': {
-	    'fields': ['title', 'call_no'],
-	    'page_size': 10
-	},
-	'location': {
-	    'fields': ['name'],
-	    'page_size': 5
-	},
-    }
 class AdminModelBorrowing(BaseModelView):
     form_excluded_columns = ['copydata_type', 'copydata_id']
     form_ajax_refs = {
