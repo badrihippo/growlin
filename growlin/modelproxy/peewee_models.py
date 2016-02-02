@@ -57,7 +57,7 @@ class CampusLocation(BaseModel):
 class UserGroup(BaseModel):
     '''Describes Group (eg. Class) for a User to belong to'''
     name = peewee.CharField(max_length=128, primary_key=True)
-    position = peewee.IntegerField(verbose_name='Ordering position', default=0)
+    position = peewee.IntegerField(verbose_name='Display Order', default=0)
     # Can be enabled later if required/implemented
     # visible = db.BooleanField(default=True)
     def __unicode__(self):

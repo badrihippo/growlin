@@ -21,7 +21,7 @@ class CampusLocation(db.Document):
 class UserGroup(db.Document):
     '''Describes Group (eg. Class) for a User to belong to'''
     name = db.StringField(max_length=128, primary_key=True)
-    position = db.IntField(verbose_name='Ordering position', default=0)
+    position = db.IntField(verbose_name='Display order', default=0)
     # Can be enabled later if required/implemented
     # visible = db.BooleanField(default=True)
     def __unicode__(self):
