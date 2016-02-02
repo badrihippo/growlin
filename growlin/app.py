@@ -10,9 +10,9 @@ if not app.config.has_key('GROWLIN_USE_PEEWEE'):
     app.config['GROWLIN_USE_PEEWEE'] = False
 
 if app.config['GROWLIN_USE_PEEWEE']:
-    from flask.ext.peewee.db import SqliteDatabase
+    from flask.ext.peewee.db import Database
     from peewee import DoesNotExist
-    db = SqliteDatabase(app)
+    db = Database(app)
     db.DoesNotExist = DoesNotExist
 else:
     from flask.ext.mongoengine import MongoEngine

@@ -34,7 +34,7 @@ class ObjectManager():
     def get(self, *args, **kwargs):
         self.model.get(*args, **kwargs)
 
-class BaseModel(peewee.Model):
+class BaseModel(db.Model):
     '''
     def __new__(cls, *args, **kwargs):
         cls.objects = ObjectManager()
@@ -44,8 +44,6 @@ class BaseModel(peewee.Model):
     @classmethod
     def objects(self):
         return ObjectManager(self)
-    class Meta:
-        database = db
 
 # Admin masters
 
