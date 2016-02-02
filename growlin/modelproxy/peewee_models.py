@@ -32,7 +32,7 @@ class ObjectManager():
         self.model = model
 
     def get(self, *args, **kwargs):
-        self.model.get(*args, **kwargs)
+        return self.model.get(*args, **kwargs)
 
 class BaseModel(db.Model):
     '''
