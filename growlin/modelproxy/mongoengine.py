@@ -1,4 +1,5 @@
-import mongoengine as mongo
+from ..app import db
+
 from flask.ext.login import UserMixin
 from datetime import datetime
 
@@ -8,54 +9,52 @@ class GrowlinException(Exception): pass
 class BorrowError(GrowlinException): pass
 class AlreadyBorrowed(BorrowError): pass
 
-db = mongo.connect('growlindb')
-
 # Admin masters
 
-class CampusLocation(mongo.Document):
-    name = mongo.StringField(max_length=128, primary_key=True)
+class CampusLocation(db.Document):
+    name = db.StringField(max_length=128, primary_key=True)
     # Following field can be enabled later, if required/implemented
-    # prevent_borrowing = mongo.BooleanField(default=False)
+    # prevent_borrowing = db.BooleanField(default=False)
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
-class UserGroup(mongo.Document):
+class UserGroup(db.Document):
     '''Describes Group (eg. Class) for a User to belong to'''
-    name = mongo.StringField(max_length=128, primary_key=True)
-    position = mongo.IntField(verbose_name='Ordering position', default=0)
+    name = db.StringField(max_length=128, primary_key=True)
+    position = db.IntField(verbose_name='Ordering position', default=0)
     # Can be enabled later if required/implemented
-    # visible = mongo.BooleanField(default=True)
+    # visible = db.BooleanField(default=True)
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
-class UserRole(mongo.Document):    
-    name = mongo.StringField(max_length=16, primary_key=True)    
+class UserRole(db.Document):    
+    name = db.StringField(max_length=16, primary_key=True)    
     # List of permissions supplied by this role
-    permissions = mongo.ListField(mongo.StringField(max_length=32))
+    permissions = db.ListField(db.StringField(max_length=32))
     
 
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
-class Currency(mongo.Document):
-    name = mongo.StringField(max_length=32, unique=True)
-    symbol = mongo.StringField(max_length=4)  
+class Currency(db.Document):
+    name = db.StringField(max_length=32, unique=True)
+    symbol = db.StringField(max_length=4)  
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
 # Librarian Masters
 
-class User(mongo.Document, UserMixin):
-    username = mongo.StringField(max_length=32, unique=True)
-    password = mongo.StringField(max_length=512)
-    # refnum = mongo.StringField(null=True)
-    name = mongo.StringField(max_length=24, required=True)
-    group = mongo.ReferenceField(UserGroup, required=True)
-    email = mongo.EmailField()
-    # phone = mongo.StringField(max_length=16, null=True)
+class User(db.Document, UserMixin):
+    username = db.StringField(max_length=32, unique=True)
+    password = db.StringField(max_length=512)
+    # refnum = db.StringField(null=True)
+    name = db.StringField(max_length=24, required=True)
+    group = db.ReferenceField(UserGroup, required=True)
+    email = db.EmailField()
+    # phone = db.StringField(max_length=16, null=True)
     # birthday = pw.DateField(null=True)
-    active = mongo.BooleanField(default=True)
-    roles = mongo.ListField(mongo.ReferenceField(UserRole))
+    active = db.BooleanField(default=True)
+    roles = db.ListField(db.ReferenceField(UserRole))
 
     def __unicode__(self):
         return '%(name)s, %(group)s' % {
@@ -150,72 +149,72 @@ class User(mongo.Document, UserMixin):
         
         return BorrowPast.objects(user=self)
 
-class Publisher(mongo.Document):
-    name = mongo.StringField(max_length=128, unique=True)
+class Publisher(db.Document):
+    name = db.StringField(max_length=128, unique=True)
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
-class PublishPlace(mongo.Document):
-    name = mongo.StringField(max_length=128, unique=True)
+class PublishPlace(db.Document):
+    name = db.StringField(max_length=128, unique=True)
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
-class Creator(mongo.Document):
+class Creator(db.Document):
     '''Author, illustrator, etc.'''
-    name = mongo.StringField(max_length=128, unique=True)
+    name = db.StringField(max_length=128, unique=True)
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
 # Following is not Librarian master but has to come here for technical reasons
-class BorrowCurrent(mongo.EmbeddedDocument):
+class BorrowCurrent(db.EmbeddedDocument):
     '''
     Tracks one instance of an accessed item getting borrowed.
     '''
-    user = mongo.ReferenceField(User, required=True)
-    borrow_date = mongo.DateTimeField(required=True)
-    due_date = mongo.DateTimeField()
+    user = db.ReferenceField(User, required=True)
+    borrow_date = db.DateTimeField(required=True)
+    due_date = db.DateTimeField()
 
     # TODO: Discuss if this is required
-    is_longterm = mongo.BooleanField(default=False)
+    is_longterm = db.BooleanField(default=False)
     def __unicode__(self):
         return '%(user)s on %(date)s' % {
             'user': self.user,
             'date': self.borrow_date}
 
-class Item(mongo.Document):
+class Item(db.Document):
     '''
     Holds data for items in the Accession Register. Each of these items can 
     have one or more Copies associated with it, each with its own Accession
     Number.
     '''
-    accession = mongo.StringField(required=True) # String since old values have prefix
-    status = mongo.StringField(choices=(
+    accession = db.StringField(required=True) # String since old values have prefix
+    status = db.StringField(choices=(
         ('a','Available'),
         ('b', 'Borrowed'),
         ('l', 'Lost'),
         ('d', 'Discarded'),
         ('q', 'Quarantined')))
         
-    title = mongo.StringField(max_length=128,
+    title = db.StringField(max_length=128,
         help_text='Full title of book, or name of Magazine/Periodical', required=True)
-    subtitle = mongo.StringField(max_length=128)
-    keywords = mongo.ListField(mongo.StringField(max_length=16))
-    comments = mongo.StringField()
+    subtitle = db.StringField(max_length=128)
+    keywords = db.ListField(db.StringField(max_length=16))
+    comments = db.StringField()
 
-    campus_location = mongo.ReferenceField(CampusLocation, required=True)
-    promo_location = mongo.ReferenceField(CampusLocation,
+    campus_location = db.ReferenceField(CampusLocation, required=True)
+    promo_location = db.ReferenceField(CampusLocation,
         help_text='Prominent place where item is placed temporarily to attract readers')
 
     # Source
-    price = mongo.DecimalField(precision=2)
-    price_currency = mongo.ReferenceField(Currency)
-    receipt_date = mongo.DateTimeField() # TODO: Possible to do only date?
-    source = mongo.StringField(max_length=64) # Where it came from
+    price = db.DecimalField(precision=2)
+    price_currency = db.ReferenceField(Currency)
+    receipt_date = db.DateTimeField() # TODO: Possible to do only date?
+    source = db.StringField(max_length=64) # Where it came from
 
-    borrow_current = mongo.EmbeddedDocumentField(BorrowCurrent)
+    borrow_current = db.EmbeddedDocumentField(BorrowCurrent)
     
     # TODO: May be implemented later
-    #display_title = mongo.StringField(max_length=256,
+    #display_title = db.StringField(max_length=256,
     #    help_text='Short version of title, for displaying in lists.\
     #    Leave blank or set to "auto" to auto-set',
     #    default='auto')
@@ -229,32 +228,32 @@ class Item(mongo.Document):
 
     meta = {'allow_inheritance': True}
 
-class BookPublicationDetails(mongo.EmbeddedDocument):
-    publisher = mongo.ReferenceField(Publisher)
-    place = mongo.ReferenceField(PublishPlace)
-    year = mongo.IntField(max_value=9999) # TODO: Make this more year-friendly
+class BookPublicationDetails(db.EmbeddedDocument):
+    publisher = db.ReferenceField(Publisher)
+    place = db.ReferenceField(PublishPlace)
+    year = db.IntField(max_value=9999) # TODO: Make this more year-friendly
 
 class BookItem(Item):
-    call_no = mongo.ListField(mongo.StringField(max_length=8))
-    publication = mongo.EmbeddedDocumentField(BookPublicationDetails)
-    isbn = mongo.StringField(max_length=17) # TODO: Add validation
-    authors = mongo.ListField(mongo.ReferenceField(Creator))
-    editor = mongo.ListField(mongo.ReferenceField(Creator))
-    illustrator = mongo.ListField(mongo.ReferenceField(Creator))
+    call_no = db.ListField(db.StringField(max_length=8))
+    publication = db.EmbeddedDocumentField(BookPublicationDetails)
+    isbn = db.StringField(max_length=17) # TODO: Add validation
+    authors = db.ListField(db.ReferenceField(Creator))
+    editor = db.ListField(db.ReferenceField(Creator))
+    illustrator = db.ListField(db.ReferenceField(Creator))
 
-class PeriodicalSubscription(mongo.Document):
-    periodical_name = mongo.StringField(max_length=64)
+class PeriodicalSubscription(db.Document):
+    periodical_name = db.StringField(max_length=64)
     # More fields can be added here...
 
 class PeriodicalItem(Item):
-    periodical_name = mongo.ReferenceField(PeriodicalSubscription)
+    periodical_name = db.ReferenceField(PeriodicalSubscription)
 
-    vol_no = mongo.IntField(verbose_name='Volume')
-    vol_issue = mongo.IntField(verbose_name='Vol. issue')
+    vol_no = db.IntField(verbose_name='Volume')
+    vol_issue = db.IntField(verbose_name='Vol. issue')
     
-    issue_no = mongo.IntField(verbose_name='Issue no')
-    issue_date = mongo.DateTimeField(verbose_name='Issue Date')
-    date_hide_day = mongo.BooleanField('Hide issue date',
+    issue_no = db.IntField(verbose_name='Issue no')
+    issue_date = db.DateTimeField(verbose_name='Issue Date')
+    date_hide_day = db.BooleanField('Hide issue date',
         help_text='eg. "May 2015" instead of "22 May 2015"',
         default=False)
 
@@ -271,19 +270,19 @@ class PeriodicalItem(Item):
 
 # For historic records
 
-class BorrowPast(mongo.Document):
+class BorrowPast(db.Document):
     '''
     Tracks past instances of borrowing. This model is separate from
     the Borrowing model so that information can be stored in a more
     concise way, as lookups are not going to be made as frequently as
     in the Borrowing model.
     '''
-    item = mongo.ReferenceField(Item)
-    user = mongo.ReferenceField(User) # Can be StringField field also?
-    user_group = mongo.StringField()
+    item = db.ReferenceField(Item)
+    user = db.ReferenceField(User) # Can be StringField field also?
+    user_group = db.StringField()
     
-    borrow_date = mongo.DateTimeField()
-    return_date = mongo.DateTimeField()
+    borrow_date = db.DateTimeField()
+    return_date = db.DateTimeField()
     def __unicode__(self):
         return '%(item)s by %(user)s (%(group)s) on %(date)s' % {
             'acc': self.accession,

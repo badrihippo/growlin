@@ -8,3 +8,13 @@ app.config.from_pyfile('../instance/config.py')
 # Flag to use peewee driver instead of MongoEngine
 if not app.config.has_key('GROWLIN_USE_PEEWEE'):
     app.config['GROWLIN_USE_PEEWEE'] = False
+
+if app.config['GROWLIN_USE_PEEWEE']:
+    from flask.ext.peewee.db import SqliteDatabase
+    from peewee import DoesNotExist
+    db = SqliteDatabase(app)
+    db.DoesNotExist = DoesNotExist
+else:
+    from flask.ext.mongoengine import MongoEngine
+    db = MongoEngine()
+    db.init_app(app)
