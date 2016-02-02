@@ -48,7 +48,7 @@ class BaseModel(db.Model):
 # Admin masters
 
 class CampusLocation(BaseModel):
-    name = peewee.CharField(max_length=128, primary_key=True)
+    name = peewee.CharField(max_length=32)
     # Following field can be enabled later, if required/implemented
     # prevent_borrowing = db.BooleanField(default=False)
     def __unicode__(self):
