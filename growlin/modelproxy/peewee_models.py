@@ -66,7 +66,7 @@ class UserGroup(BaseModel):
 class UserRole(BaseModel):    
     name = peewee.CharField(max_length=16, primary_key=True)    
     # List of permissions supplied by this role
-    permissions = peewee.CharField()
+    permissions = peewee.CharField(null=True)
 
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
@@ -87,7 +87,9 @@ class User(BaseModel, UserMixin):
     # phone = peewee.CharField(max_length=16, null=True)
     # birthday = pw.DateField(null=True)
     active = peewee.BooleanField(default=True)
-    #roles = peewee.ListField(db.ForeignKeyField(UserRole))
+    @property
+    def roles(self):
+        return UserRoles.select().where(UserRoles.user == self)
 
     def __unicode__(self):
         return '%(name)s, %(group)s' % {
@@ -181,6 +183,16 @@ class User(BaseModel, UserMixin):
         '''
         
         return BorrowPast.select().where(user=self)
+
+class UserRoles(BaseModel):
+    '''
+    Maps role to user (since MySQL has no ListFields)
+    '''
+    user = peewee.ForeignKeyField(User)
+    role = peewee.ForeignKeyField(UserRole)
+    @property
+    def name(self):
+        return self.role.name
 
 class Publisher(BaseModel):
     name = peewee.CharField(max_length=128, unique=True)
