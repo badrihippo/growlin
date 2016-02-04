@@ -59,7 +59,7 @@ class CampusLocation(BaseModel):
 
 class UserGroup(BaseModel):
     '''Describes Group (eg. Class) for a User to belong to'''
-    name = peewee.CharField(max_length=128, primary_key=True)
+    name = peewee.CharField(max_length=128) # primary_key=True
     position = peewee.IntegerField(verbose_name='Display Order', default=0)
     # Can be enabled later if required/implemented
     # visible = db.BooleanField(default=True)
@@ -67,7 +67,7 @@ class UserGroup(BaseModel):
         return '%(name)s' % {'name': self.name}
 
 class UserRole(BaseModel):    
-    name = peewee.CharField(max_length=16, primary_key=True)    
+    name = peewee.CharField(max_length=16) # primary_key=True
     # List of permissions supplied by this role
     permissions = peewee.CharField(null=True)
 
@@ -215,7 +215,7 @@ class Creator(BaseModel):
 
 class Genre(BaseModel):
     '''Item genre'''
-    name = peewee.CharField(max_length=32, primary_key=True)
+    name = peewee.CharField(max_length=32) # primary_key=True
     def __unicode__(self):
         return '%s' % self.name
 
