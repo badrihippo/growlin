@@ -213,6 +213,12 @@ class Creator(BaseModel):
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
+class Genre(BaseModel):
+    '''Item genre'''
+    name = peewee.CharField(max_length=32, primary_key=True)
+    def __unicode__(self):
+        return '%s' % self.name
+
 class Item(BaseModel):
     '''
     Holds data for items in the Accession Register. Each of these items can 

@@ -165,6 +165,12 @@ class Creator(db.Document):
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
+class Genre(db.Document):
+   '''Item genre'''
+    name = db.StringField(max_length=32, primary_key=True)
+    def __unicode__(self):
+        return '%s' % self.name
+
 # Following is not Librarian master but has to come here for technical reasons
 class BorrowCurrent(db.EmbeddedDocument):
     '''
