@@ -31,6 +31,9 @@ class ObjectManager():
     def __init__(self, model, *args, **kwargs):
         self.model = model
 
+    def __iter__(self):
+        return iter(self.model.select())
+
     def get(self, *args, **kwargs):
         return self.model.get(*args, **kwargs)
 
