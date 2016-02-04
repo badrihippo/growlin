@@ -166,7 +166,7 @@ class Creator(db.Document):
         return '%(name)s' % {'name': self.name}
 
 class Genre(db.Document):
-   '''Item genre'''
+    '''Item genre'''
     name = db.StringField(max_length=32, primary_key=True)
     def __unicode__(self):
         return '%s' % self.name
