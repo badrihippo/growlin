@@ -176,8 +176,8 @@ class BorrowCurrent(db.EmbeddedDocument):
     '''
     Tracks one instance of an accessed item getting borrowed.
     '''
-    user = db.ReferenceField(User, required=True)
-    borrow_date = db.DateTimeField(required=True)
+    user = db.ReferenceField(User)
+    borrow_date = db.DateTimeField()
     due_date = db.DateTimeField()
 
     # TODO: Discuss if this is required
