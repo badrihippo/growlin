@@ -12,7 +12,7 @@ class AlreadyBorrowed(BorrowError): pass
 # Admin masters
 
 class CampusLocation(db.Document):
-    name = db.StringField(max_length=128, primary_key=True)
+    name = db.StringField(max_length=128)
     # Following field can be enabled later, if required/implemented
     prevent_borrowing = db.BooleanField(default=False)
     def __unicode__(self):
@@ -20,7 +20,7 @@ class CampusLocation(db.Document):
 
 class UserGroup(db.Document):
     '''Describes Group (eg. Class) for a User to belong to'''
-    name = db.StringField(max_length=128, primary_key=True)
+    name = db.StringField(max_length=128)
     position = db.IntField(verbose_name='Display order', default=0)
     # Can be enabled later if required/implemented
     # visible = db.BooleanField(default=True)
@@ -28,7 +28,7 @@ class UserGroup(db.Document):
         return '%(name)s' % {'name': self.name}
 
 class UserRole(db.Document):    
-    name = db.StringField(max_length=16, primary_key=True)    
+    name = db.StringField(max_length=16)
     # List of permissions supplied by this role
     permissions = db.ListField(db.StringField(max_length=32))
     
