@@ -42,13 +42,13 @@ class AdminModelBorrowing(BaseModelView):
 
 admin.add_view(AdminModelPublication(Item, name='Publications', category='Registry'))
 
-admin.add_view(BaseModelView(Publisher, name='Publishers', category='Metadata'))
-admin.add_view(BaseModelView(PublishPlace, name='Publish locations', category='Metadata'))
-
-admin.add_view(BaseModelView(CampusLocation, name='Places'))
-
 admin.add_view(AdminModelUser(User, name='Users', category='Accounts'))
 admin.add_view(BaseModelView(UserGroup, name='Groups', category='Accounts'))
+admin.add_view(BaseModelView(UserRole, name='Roles', category='Accounts'))
 admin.add_view(AdminModelBorrowing(BorrowPast, name='Past borrowings', category='Accounts'))
 
-admin.add_view(BaseModelView(UserRole, name='Roles', category='Admin'))
+admin.add_view(BaseModelView(Publisher, name='Publishers', category='Metadata'))
+admin.add_view(BaseModelView(PublishPlace, name='Publish locations', category='Metadata'))
+admin.add_view(BaseModelView(CampusLocation, name='Campus locations', category='Metadata'))
+admin.add_view(BaseModelView(Genre, name='Genres', category='Metadata'))
+admin.add_view(BaseModelView(Currency, name='Currencies', category='Metadata'))
