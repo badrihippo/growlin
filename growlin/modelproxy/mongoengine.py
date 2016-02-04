@@ -14,7 +14,7 @@ class AlreadyBorrowed(BorrowError): pass
 class CampusLocation(db.Document):
     name = db.StringField(max_length=128, primary_key=True)
     # Following field can be enabled later, if required/implemented
-    # prevent_borrowing = db.BooleanField(default=False)
+    prevent_borrowing = db.BooleanField(default=False)
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 

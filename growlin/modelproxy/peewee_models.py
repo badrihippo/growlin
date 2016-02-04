@@ -53,7 +53,7 @@ class BaseModel(db.Model):
 class CampusLocation(BaseModel):
     name = peewee.CharField(max_length=32)
     # Following field can be enabled later, if required/implemented
-    # prevent_borrowing = db.BooleanField(default=False)
+    prevent_borrowing = peewee.BooleanField(default=False)
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
