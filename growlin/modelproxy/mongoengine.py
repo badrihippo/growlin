@@ -240,7 +240,7 @@ class BookPublicationDetails(db.EmbeddedDocument):
     year = db.IntField(max_value=9999) # TODO: Make this more year-friendly
 
 class BookItem(Item):
-    call_no = db.ListField(db.StringField(max_length=8))
+    call_nos = db.ListField(db.StringField(max_length=8))
     publication = db.EmbeddedDocumentField(BookPublicationDetails)
     isbn = db.StringField(max_length=17) # TODO: Add validation
     authors = db.ListField(db.ReferenceField(Creator))
