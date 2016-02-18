@@ -12,10 +12,10 @@
 </ul>
 {% endif %}
 {{form.csrf_token}}  
-{% if form.title %}{# implies borrow confirmation #}
-<input id="accession" name="accession" type="hidden" value="{{form.copy}}">
-<input id="copy" name="copy" type="hidden" value="{{form.accession}}">
-<p>Please confirm that you want to borrow "{{form.title}}"</p>
+{% if form.item %}{# implies borrow confirmation #}
+<input id="item" name="item" type="hidden" value="{{form.item}}">
+<input id="accession" name="accession" type="hidden" value="{{form.accession}}">
+<p>Please confirm that you want to borrow "{{item.title}}"</p>
 <a href="{{url_for('user_shelf')}}">Cancel</a>
 <input type="submit" value="Confirm" />
 {% else %}

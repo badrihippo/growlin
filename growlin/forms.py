@@ -6,7 +6,7 @@ class UsernamePasswordForm(Form):
     password = PasswordField('Password')
 
 class AccessionForm(Form):
-    accession = IntegerField('Accession')
+    accession = TextField('Accession')
 
 class AccessionItemForm(Form):
     accession = HiddenField('Accession',

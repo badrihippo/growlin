@@ -1,6 +1,6 @@
 {% extends 'base.htm' %}
 {% block content %}
-<form action="{{url_for('user_return', borrowid=borrowing.id)}}" method="POST">
+<form action="{{url_for('user_return', borrowid=item.id)}}" method="POST">
 {% include 'includes/form_errors.htm' %}
 {{form.csrf_token}}  
 <p>{{message}}</p>
