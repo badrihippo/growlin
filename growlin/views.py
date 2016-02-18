@@ -6,7 +6,7 @@ from .forms import *
 
 @app.route('/')
 def home():
-    if current_user.is_authenticated():
+    if current_user.is_authenticated:
         return redirect(url_for('user_shelf'))
     else:
 	return redirect(url_for('login'))
