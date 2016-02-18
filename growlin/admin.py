@@ -28,8 +28,7 @@ class AdminModelUser(BaseModelView):
     column_list = ('username', 'name', 'group', 'active')
 
 class AdminModelPublication(BaseModelView):
-    form_create_rules = ('accession', 'title', 'subtitle', 'keywords', 'comments', 'campus_location', 'price', 'price_currency', 'receipt_date', 'source')
-    edit_modal = True
+    form_excluded_columns = ['borrow_current']
 
 class AdminModelBorrowing(BaseModelView):
     form_excluded_columns = ['copydata_type', 'copydata_id']
