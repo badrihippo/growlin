@@ -278,6 +278,9 @@ class Item(BaseModel):
     def item_class(self):
         return self.item_type.item_type
 
+    class Meta:
+        validate_backrefs = False
+
 # Following is not Librarian master but has to come here for technical reasons
 
 class BorrowCurrent(BaseModel):
@@ -297,34 +300,74 @@ class BorrowCurrent(BaseModel):
             'user': self.user,
             'date': self.borrow_date}
 
-'''
-class BookPublicationDetails(db.EmbeddedDocument):
-    publisher = peewee.ForeignKeyField(Publisher)
-    place = peewee.ForeignKeyField(PublishPlace)
-    year = peewee.IntegerField(max_value=9999) # TODO: Make this more year-friendly
+class BookPublicationDetails():
+    def __init__(self, model, *args, **kwargs):
+        self.model = model
+    @property
+    def publisher(self):
+        return self.model.publication_publisher
+    @property
+    def place(self):
+        return self.model.publication_place
+    @property
+    def year(self):
+        return self.model.publication_year
 
 class BookItem(Item):
-    call_no = peewee.ListField(db.CharField(max_length=8))
-    publication = peewee.EmbeddedDocumentField(BookPublicationDetails)
-    isbn = peewee.CharField(max_length=17) # TODO: Add validation
-    authors = peewee.ListField(db.ForeignKeyField(Creator))
-    editor = peewee.ListField(db.ForeignKeyField(Creator))
-    illustrator = peewee.ListField(db.ForeignKeyField(Creator))
-'''
+    call_no = peewee.CharField(max_length=8, null=True)
+
+    publication_pubisher = peewee.ForeignKeyField(Publisher, null=True)
+    pulication_place = peewee.ForeignKeyField(PublishPlace, null=True)
+    publication_year = peewee.IntegerField(null=True)
+
+    isbn = peewee.CharField(max_length=17, null=True) # TODO: Add validation
+
+    @property
+    def call_nos(self):
+        return [self.call_no]
+
+    @property
+    def authors(self):
+        return Creator.select(Creator, BookAuthors).join(BookAuthors).where(BookAuthors.book_item == self)
+    @property
+    def editors(self):
+        return Creator.select(Creator, BookEditors).join(BookEditors).where(BookEditors.book_item == self)
+    @property
+    def illustrators(self):
+        return Creator.select(Creator, BookEditors).join(BookEditors).where(BookEditors.book_item == self)
+
+    # EmbeddedDocument compat
+    @property
+    def publication(self):
+        return BookPublicationDetails(self)
+
+    class Meta:
+        db_table = 'item'
+
+class BookCreator(Item):
+    creator = peewee.ForeignKeyField(Creator)
+    book_item = peewee.ForeignKeyField(BookItem)
+
+    @property
+    def name(self):
+        return self.creator.name
+
+class BookAuthors(BookCreator): pass
+class BookEditors(BookCreator): pass
+class BookIllustrators(BookCreator): pass
 
 class PeriodicalSubscription(BaseModel):
     periodical_name = peewee.CharField(max_length=64)
     # More fields can be added here...
 
-'''
 class PeriodicalItem(Item):
-    periodical_name = peewee.ForeignKeyField(PeriodicalSubscription)
+    periodical_name = peewee.ForeignKeyField(PeriodicalSubscription, null=True)
 
-    vol_no = peewee.IntegerField(verbose_name='Volume')
-    vol_issue = peewee.IntegerField(verbose_name='Vol. issue')
+    vol_no = peewee.IntegerField(verbose_name='Volume', null=True)
+    vol_issue = peewee.IntegerField(verbose_name='Vol. issue', null=True)
     
-    issue_no = peewee.IntegerField(verbose_name='Issue no')
-    issue_date = peewee.DateTimeField(verbose_name='Issue Date')
+    issue_no = peewee.IntegerField(verbose_name='Issue no', null=True)
+    issue_date = peewee.DateTimeField(verbose_name='Issue Date', null=True)
     date_hide_day = peewee.BooleanField('Hide issue date',
         help_text='eg. "May 2015" instead of "22 May 2015"',
         default=False)
@@ -339,7 +382,15 @@ class PeriodicalItem(Item):
             'year': self.date.year,
             'cover': self.cover_content[:20]
             }
-'''
+
+    class Meta:
+        db_table = 'item'
+
+# Convenience model to generate tables.
+# Inherits from all Item models
+class FullItem(BookItem, PeriodicalItem):
+    class Meta:
+        db_table = 'item'
 
 # For historic records
 
