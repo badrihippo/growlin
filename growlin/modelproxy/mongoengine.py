@@ -61,12 +61,10 @@ class User(db.Document, UserMixin):
             'name': self.name,
             'group': self.group.name}
 
-    def borrow(self, item, accession=None, longterm=False, interactive=False):
+    def borrow(self, item, accession=None, longterm=False):
         '''
         Marks an Item as "borrowed" by filling the borrow_current field, after
-        checking for valid accession number. Setting the "interactive" flag
-        will cause the function to open a prompt for dynamic input of the
-        accession number.
+        checking for valid accession number.
 
         This function returns an instance of the borrowed item.
         '''
@@ -75,33 +73,27 @@ class User(db.Document, UserMixin):
             raise TypeError('"item" must be an instance of Item')
         
         # Make sure item is not already borrowed
-        if item.borrow_current is not None:
+        if (item.borrow_current is not None) and (item.borrow_current.user is not None):
             raise AlreadyBorrowed('"%(title)s" is already borrowed!' %
                 {'title': item.get_display_title()})
 
         # Check for accession number mismatch
-        if interactive and accession is None:
-            accession = int(raw_input('Enter accession for "%(title)s": ' %
-                {'title': item.get_display_title()}))
-        if accession != item.accession:
+        if (accession is not None) and (accession != item.accession):
             raise BorrowError('Accession numbers do not match')
-       
-        b = item.borrow_current = BorrowCurrent(
-                user=self,
-                borrow_date = datetime.now(),
-                is_longterm = longterm)
-        # TODO: Race condition protection?
-        b.save()
-        return b
+        b = BorrowCurrent(
+            user=self,
+            borrow_date=datetime.now(),
+            is_longterm=longterm)
+        item.borrow_current = b
+        item.save()
+        return item
 
     # "return" is a reserved word!
-    def unborrow(self, item, accession=None, interactive=False):
+    def unborrow(self, item, accession=None):
         '''
         Marks an Item as "returned" using the database models, after checking
         for valid accession number. A BorrowError is raised if either the item
         is not borrowed by that user or the accession numbers do not match.
-        Setting the "interactive" flag will cause the function to open a prompt
-        for dynamic input of the accession number.
 
         This function clears the borrow_current field and returns a newly created
         PastBorrowing model instance used to hold historic records.
@@ -111,16 +103,12 @@ class User(db.Document, UserMixin):
         if not isinstance(item, Item):
             raise TypeError('"item" must be an instance of Item')
         # Refresh to get most recent record
-        item.reload()
         
         # Do user check
-        if item.borrow_current is None or item.borrow_current.user != self:
+        if (item.borrow_current is None) or (item.borrow_current.user is None) or (item.borrow_current.user != self):
             raise BorrowError('You have not borrowed that item')
 
-        if interactive and accession is None:
-            accession = int(raw_input('Enter accession for "%(title)s": ' %
-                {'title': item.title}))
-        if accession != item.accession:
+        if (accession is not None) and (accession != item.accession):
             raise BorrowError('Accession numbers do not match')
                 
         p = BorrowPast(
@@ -130,7 +118,7 @@ class User(db.Document, UserMixin):
             borrow_date = item.borrow_current.borrow_date,
             return_date = datetime.now()
             )
-        del(item.borrow_current)
+        item.borrow_current = None
         p.save()
         item.save()
         return p
@@ -214,7 +202,7 @@ class Item(db.Document):
     # Source
     price = db.DecimalField(precision=2)
     price_currency = db.ReferenceField(Currency)
-    receipt_date = db.DateTimeField() # TODO: Possible to do only date?
+    receipt_date = db.DateTimeField(required=True) # TODO: Possible to do only date?
     source = db.StringField(max_length=64) # Where it came from
 
     borrow_current = db.EmbeddedDocumentField(BorrowCurrent)
@@ -294,9 +282,9 @@ class BorrowPast(db.Document):
     return_date = db.DateTimeField()
     def __unicode__(self):
         return '%(item)s by %(user)s (%(group)s) on %(date)s' % {
-            'acc': self.accession,
+            'item': self.item.title,
             'user': self.user,
-            'group': self.group,
+            'group': self.user_group,
             'date': self.borrow_date}
 
 def create_tables():

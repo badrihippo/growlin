@@ -99,12 +99,10 @@ class User(BaseModel, UserMixin):
             'name': self.name,
             'group': self.group.name}
 
-    def borrow(self, item, accession=None, longterm=False, interactive=False):
+    def borrow(self, item, accession=None, longterm=False):
         '''
         Marks an Item as "borrowed" by filling the borrow_current field, after
-        checking for valid accession number. Setting the "interactive" flag
-        will cause the function to open a prompt for dynamic input of the
-        accession number.
+        checking for valid accession number.
 
         This function returns an instance of the borrowed item.
         '''
@@ -118,28 +116,22 @@ class User(BaseModel, UserMixin):
                 {'title': item.get_display_title()})
 
         # Check for accession number mismatch
-        if interactive and accession is None:
-            accession = int(raw_input('Enter accession for "%(title)s": ' %
-                {'title': item.get_display_title()}))
-        if accession != item.accession:
+        if (accession is not None) and (accession != item.accession):
             raise BorrowError('Accession numbers do not match')
-       
-        b = item.borrow_current = BorrowCurrent(
-                user=self,
-                borrow_date = datetime.now(),
-                is_longterm = longterm)
-        # TODO: Race condition protection?
+        b = BorrowCurrent(
+            user=self,
+            borrow_date=datetime.now(),
+            item=item,
+            is_longterm=longterm)
         b.save()
-        return b
+        return item
 
     # "return" is a reserved word!
-    def unborrow(self, item, accession=None, interactive=False):
+    def unborrow(self, item, accession=None):
         '''
         Marks an Item as "returned" using the database models, after checking
         for valid accession number. A BorrowError is raised if either the item
         is not borrowed by that user or the accession numbers do not match.
-        Setting the "interactive" flag will cause the function to open a prompt
-        for dynamic input of the accession number.
 
         This function clears the borrow_current field and returns a newly created
         PastBorrowing model instance used to hold historic records.
@@ -149,16 +141,12 @@ class User(BaseModel, UserMixin):
         if not isinstance(item, Item):
             raise TypeError('"item" must be an instance of Item')
         # Refresh to get most recent record
-        item.reload()
         
         # Do user check
         if item.borrow_current is None or item.borrow_current.user != self:
             raise BorrowError('You have not borrowed that item')
 
-        if interactive and accession is None:
-            accession = int(raw_input('Enter accession for "%(title)s": ' %
-                {'title': item.title}))
-        if accession != item.accession:
+        if (accession is not None) and (accession != item.accession):
             raise BorrowError('Accession numbers do not match')
                 
         p = BorrowPast(
@@ -168,9 +156,8 @@ class User(BaseModel, UserMixin):
             borrow_date = item.borrow_current.borrow_date,
             return_date = datetime.now()
             )
-        del(item.borrow_current)
+        item.borrow_current.delete_instance()
         p.save()
-        item.save()
         return p
 
     def get_current_borrowings(self):
@@ -277,6 +264,13 @@ class Item(BaseModel):
     @property
     def item_class(self):
         return self.item_type.item_type
+    @property
+    def borrow_current(self):
+        b = BorrowCurrent.select().where(BorrowCurrent.item == self)
+        if b.exists():
+            return b[0]
+        else:
+            return None
 
     class Meta:
         validate_backrefs = False
@@ -288,10 +282,10 @@ class BorrowCurrent(BaseModel):
     Tracks one instance of an accessed item getting borrowed.
     NOTE: In MongoEngine, this is an EmbeddedDocument
     '''
-    item = peewee.ForeignKeyField(Item, related_name='borrow_current')
+    item = peewee.ForeignKeyField(Item, related_name='current_borrow')
     user = peewee.ForeignKeyField(User)
     borrow_date = peewee.DateTimeField()
-    due_date = peewee.DateTimeField()
+    due_date = peewee.DateTimeField(null=True)
 
     # TODO: Discuss if this is required
     is_longterm = peewee.BooleanField(default=False)
@@ -412,7 +406,7 @@ class BorrowPast(BaseModel):
     return_date = peewee.DateTimeField()
     def __unicode__(self):
         return '%(item)s by %(user)s (%(group)s) on %(date)s' % {
-            'acc': self.accession,
+            'item': self.item.title,
             'user': self.user,
-            'group': self.group,
+            'group': self.user_group,
             'date': self.borrow_date}
