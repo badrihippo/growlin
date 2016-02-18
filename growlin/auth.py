@@ -15,9 +15,15 @@ principals = Principal(app)
 def load_user(userid=None, username=None):
     try:
         if userid is not None:
-            user = User.objects.get(User.id == userid)
+	    if app.config['GROWLIN_USE_PEEWEE']:
+                user = User.objects.get(User.id == userid)
+	    else:
+		user = User.objects.get(id=userid)
         elif username is not None:
-	    user = User.objects.get(User.username == username)
+	    if app.config['GROWLIN_USE_PEEWEE']:
+	        user = User.objects.get(User.username == username)
+	    else:
+		user = User.objects.get(username=username)
     except db.DoesNotExist:
 	return None
     return user
