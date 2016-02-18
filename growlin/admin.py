@@ -76,3 +76,6 @@ admin.add_view(BaseModelView(PublishPlace, name='Publish locations', category='M
 admin.add_view(BaseModelView(CampusLocation, name='Campus locations', category='Metadata'))
 admin.add_view(BaseModelView(Genre, name='Genres', category='Metadata'))
 admin.add_view(BaseModelView(Currency, name='Currencies', category='Metadata'))
+admin.add_view(BaseModelView(Creator, name='Creators', category='Metadata'))
+
+admin.add_view(BaseModelView(PeriodicalSubscription, name='Periodical subscriptions', category='More'))
