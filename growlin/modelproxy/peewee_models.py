@@ -360,6 +360,9 @@ class PeriodicalSubscription(BaseModel):
     periodical_name = peewee.CharField(max_length=64)
     # More fields can be added here...
 
+    def __unicode__(self):
+        return '%s' % self.periodical_name
+
 class PeriodicalItem(Item):
     periodical_name = peewee.ForeignKeyField(PeriodicalSubscription, null=True)
 

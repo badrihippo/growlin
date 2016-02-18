@@ -251,6 +251,9 @@ class PeriodicalSubscription(db.Document):
     periodical_name = db.StringField(max_length=64)
     # More fields can be added here...
 
+    def __unicode__(self):
+        return '%s' % self.periodical_name
+
 class PeriodicalItem(Item):
     periodical_name = db.ReferenceField(PeriodicalSubscription)
 
