@@ -222,12 +222,19 @@ class Genre(BaseModel):
     def __unicode__(self):
         return '%s' % self.name
 
+class ItemType(BaseModel):
+    item_type = peewee.CharField(max_length=32)
+
+    def __unicode__(self):
+        return '%s' % self.item_type
+
 class Item(BaseModel):
     '''
     Holds data for items in the Accession Register. Each of these items can 
     have one or more Copies associated with it, each with its own Accession
     Number.
     '''
+    item_type = peewee.ForeignKeyField(ItemType)
     accession = peewee.CharField() # String since old values have prefix
     status = peewee.CharField(choices=(
         ('a','Available'),
@@ -267,7 +274,9 @@ class Item(BaseModel):
     def get_display_title(self):
         return self.title
 
-    meta = {'allow_inheritance': True}
+    @property
+    def item_class(self):
+        return self.item_type.item_type
 
 # Following is not Librarian master but has to come here for technical reasons
 
