@@ -178,14 +178,17 @@ class User(BaseModel, UserMixin):
         Gets the list of books currently borrowed by the user.
         '''
         
-        return Item.select().where(borrow_current__user=self)
+        return (Item
+            .select(Item, BorrowCurrent)
+            .join(BorrowCurrent)
+            .where(BorrowCurrent.user == self))
         
     def get_past_borrowings(self):
         '''
         Gets the list of records for books previously borrowed by the user.
         '''
         
-        return BorrowPast.select().where(user=self)
+        return BorrowPast.select().where(BorrowPast.user == self)
 
 class UserRoles(BaseModel):
     '''
