@@ -15,13 +15,13 @@ admin_permission = Permission(RoleNeed('admin'))
 class AdminRegistry(BaseView):
     @expose('/')
     def index(self):
-	return self.render('admin/registry_index.htm')
+        return self.render('admin/registry_index.htm')
     def is_accessible(self):
-	return admin_permission.can()
+        return admin_permission.can()
 
 class BaseModelView(ModelView):
     def is_accessible(self):
-	return admin_permission.can()
+        return admin_permission.can()
 
 class AdminModelUser(BaseModelView):
     can_create = True
@@ -34,10 +34,10 @@ class AdminModelPublication(BaseModelView):
 class AdminModelBorrowing(BaseModelView):
     form_excluded_columns = ['copydata_type', 'copydata_id']
     form_ajax_refs = {
-	'user': {
-	    'fields': ['username', 'name', 'email'],
-	    'page_size': 10
-	},
+    'user': {
+        'fields': ['username', 'name', 'email'],
+        'page_size': 10
+    },
     }
 
 admin.add_view(AdminModelPublication(Item, name='Publications', category='Registry'))
