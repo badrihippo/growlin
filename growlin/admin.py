@@ -40,12 +40,37 @@ class AdminModelBorrowing(BaseModelView):
     },
     }
 
-admin.add_view(AdminModelPublication(Item, name='Publications', category='Registry'))
+admin.add_view(AdminModelPublication(Item, name='All Items', category='Registry'))
+
+if app.config['GROWLIN_USE_PEEWEE']:
+    class AdminModelTypeItem(BaseModelView):
+        item_type = 'item'
+        def get_query(self):
+            try:
+                my_type = ItemType.get(item_type=self.item_type)
+                return self.model.select().where(self.model.item_type == my_type)
+            except ItemType.DoesNotExist:
+                print 'Warning: Returning all items'
+                return self.model.select()
+    class AdminModelBookItem(AdminModelTypeItem):
+        item_type = 'book'
+    class AdminModelPeriodicalItem(AdminModelTypeItem):
+        item_type = 'periodical'
+
+    admin.add_view(AdminModelBookItem(model=BookItem, name='Books', category='Registry'))
+    admin.add_view(AdminModelPeriodicalItem(model=PeriodicalItem, name='Periodicals', category='Registry'))
+
+else:
+    admin.add_view(AdminModelPublication(BookItem, name='Books', category='Registry'))
+    admin.add_view(AdminModelPublication(PeriodicalItem, name='Periodicals', category='Registry'))
 
 admin.add_view(AdminModelUser(User, name='Users', category='Accounts'))
 admin.add_view(BaseModelView(UserGroup, name='Groups', category='Accounts'))
 admin.add_view(BaseModelView(UserRole, name='Roles', category='Accounts'))
 admin.add_view(AdminModelBorrowing(BorrowPast, name='Past borrowings', category='Accounts'))
+
+if app.config['GROWLIN_USE_PEEWEE']:
+    admin.add_view(BaseModelView(ItemType, name='Item types', category='Metadata'))
 
 admin.add_view(BaseModelView(Publisher, name='Publishers', category='Metadata'))
 admin.add_view(BaseModelView(PublishPlace, name='Publish locations', category='Metadata'))
