@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Growlin by badrihippo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Growlin</h1>
+      <h2 class="project-tagline">Managing the Open Library</h2>
+      <a href="https://github.com/badrihippo/growlin" class="btn">View on GitHub</a>
+      <a href="https://github.com/badrihippo/growlin/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/badrihippo/growlin/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="growlin" class="anchor" href="#growlin" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Growlin</h1>
+
+<p>Library mangement program for the CFL <a href="http://library.cfl.in/about/">Open Library</a></p>
+
+<h1>
+<a id="about-the-open-library" class="anchor" href="#about-the-open-library" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>About the Open Library</h1>
+
+<p><a href="http://cfl.in">Centre For Learning</a> (CFL) is a school near Bangalore, India, which has this thing called the <a href="http://library.cfl.in/about/">Open Library</a>. Basically, <strong>anyone can come in and borrow books</strong> (the librarian makes accounts for all the students, staff and guests) and enter their borrowings in the library's computer. To make sure that the book is actually coming back, users have to enter the book's accession number, which will be written inside the book. The idea is that everyone takes responsibility for the books, instead of having one librarian doing all the managing.</p>
+
+<p>The program currently being used for the library management is called Merlin, and it is being used in several schools as well as CFL.</p>
+
+<p>Now, the Merlin application code is very old and buggy, so I've been asked to make a new one.
+But, since this is the first proper program I'm making, the end result may be a program that's very <em>new</em> and buggy. </p>
+
+<p>I'm putting this program on GitHub in the hope that other people may decide to help and improve the code. And maybe if it gets enough attention more people will start setting up Open Libraries...</p>
+
+<p>The old software was called "Merlin", hence I decided to name the new one after my dog, Growlin.</p>
+
+<h1>
+<a id="the-growlin-interface" class="anchor" href="#the-growlin-interface" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Growlin Interface</h1>
+
+<p>Right now I'm planning to make two interfaces for Growlin: one is the user's interface where they manage their borrowings, and the other is the admin interface where the librarian can add new books, etc. Later, I also hope to implement plugin functionality
+so that different libraries can enable/disable different plugins as required.</p>
+
+<h1>
+<a id="project-layout" class="anchor" href="#project-layout" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Project layout</h1>
+
+<p>The project is going to be developed as a <a href="http://flask.pocoo.org">Flask</a> webapp, with the <a href="http://peewee.readthedocs.org">peewee</a> ORM for managing the database. For developing, the database is going to be SQLite, but in the actual one it'll be replaced with MySQL or something. The Flask project is in the <code>growlinflask</code> folder, in case we need the rest of the space for other files.</p>
+
+<p>To set up the project, <code>cd</code> to to the <code>growlinflask</code> directory, and then install dependencies:</p>
+
+<pre><code>pip install -r requirements.txt
+</code></pre>
+
+<p>To set up the database and generate the test data, you can type the following in a Python console (opened in the <code>growlinflask</code> directory):</p>
+
+<pre><code>&gt;&gt;&gt; import models
+&gt;&gt;&gt; models.create_test_data()
+</code></pre>
+
+<p>Once everything is installed, you can run the server using:</p>
+
+<pre><code>python growlin.py
+</code></pre>
+
+<p>A development server will be started, which you can access by pointing your browser to <code>localhost:5000</code>.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/badrihippo/growlin">Growlin</a> is maintained by <a href="https://github.com/badrihippo">badrihippo</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
