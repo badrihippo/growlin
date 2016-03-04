@@ -10,7 +10,7 @@ except:
     print 'Unable to load ../instance/config.py'
     print 'Searching for OpenShift environment variables...'
     if os.environ.has_key('OPENSHIFT_APP_NAME'):
-        print 'Detected app: %s. Loading configuration variables...'
+        print 'Detected app: %s. Loading configuration variables...' % os.environ.get('OPENSHIFT_APP_NAME')
         app.config['SECRET_KEY'] = 'abcdef'
     
         app.config['MONGODB_DB'] = os.environ.get('OPENSHIFT_APP_NAME')
