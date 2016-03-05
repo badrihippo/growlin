@@ -15,7 +15,7 @@ except:
     
         app.config['MONGODB_DB'] = os.environ.get('OPENSHIFT_APP_NAME')
         app.config['MONGODB_HOST'] = os.environ.get('OPENSHIFT_MONGODB_DB_HOST')
-        app.config['MONGODB_PORT'] = os.environ.get('OPENSHIFT_MONGODB_DB_PORT')
+        app.config['MONGODB_PORT'] = os.environ.get('OPENSHIFT_MONGODB_DB_PORT', 0)
         app.config['MONGODB_USERNAME'] = os.environ.get('OPENSHIFT_MONGODB_DB_USERNAME')
         app.config['MONGODB_PASSWORD'] = os.environ.get('OPENSHIFT_MONGODB_DB_PASSWORD')
         
