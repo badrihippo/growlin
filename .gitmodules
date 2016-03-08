@@ -1,0 +1,3 @@
+[submodule "flask-admin-material"]
+	path = flask-admin-material
+	url = https://github.com/badrihippo/flask-admin-material

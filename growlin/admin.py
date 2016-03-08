@@ -8,7 +8,7 @@ if app.config['GROWLIN_USE_PEEWEE']:
 else:
     from flask.ext.admin.contrib.mongoengine import ModelView
 
-admin = Admin(app)
+admin = Admin(app, template_mode='bootstrap3')
 
 admin_permission = Permission(RoleNeed('admin'))
 

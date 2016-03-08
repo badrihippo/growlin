@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from flask.ext.admin import Admin
 from flask.ext.principal import Principal
+from flask_admin_material import setup_templates
 
 app = Flask(__name__)
 try:
@@ -37,3 +38,5 @@ else:
     from flask.ext.mongoengine import MongoEngine
     db = MongoEngine()
     db.init_app(app)
+
+app = setup_templates(app)
