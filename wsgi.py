@@ -14,7 +14,7 @@ except IOError:
 # line, it's possible required libraries won't be in your searchable path
 #
 
-sys.path.append(os.path.abspath('../flask-admin-material'))
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'flask-admin-material'))
 from growlin.growlin import app as application
 
 #
