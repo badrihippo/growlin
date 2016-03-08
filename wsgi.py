@@ -1,8 +1,10 @@
 #!/usr/bin/python
 import os
+import sys
 
 virtenv = os.path.join(os.environ.get('OPENSHIFT_PYTHON_DIR', '.'), 'virtenv')
 virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
+
 try:
     execfile(virtualenv, dict(__file__=virtualenv))
 except IOError:
@@ -12,6 +14,7 @@ except IOError:
 # line, it's possible required libraries won't be in your searchable path
 #
 
+sys.path.append(os.path.abspath('../flask-admin-material'))
 from growlin.growlin import app as application
 
 #
