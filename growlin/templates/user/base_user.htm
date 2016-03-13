@@ -9,10 +9,14 @@
 {% endblock %}
 {% block content %}
 
-	<nav>
-	<div class="nav-wrapper teal" style="padding-left:20px">
-	  <a href="#!" class="brand-logo" style="font-weight: 300">Welcome to Growlin, {{current_user.name}}</a>
+	<nav class="nav-wrapper teal" style="padding-left:20px">
+	  <a href="#!" class="brand-logo" style="font-weight: 300">Shelf</a>
 	  <ul class="right hide-on-med-and-down">
+	    <li>
+	        <a href="{{url_for('user_shelf')}}" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Shelf">
+	        	{{ current_user.name }}
+	        </a>
+	    </li>
 	  	<!-- Shelf Button -->
 	    <li>
 	        <a href="{{url_for('user_shelf')}}" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Shelf">
@@ -32,19 +36,16 @@
 	        </a>
 	    </li>
 	  </ul>
-	</div>
-	</nav>        
-
-	<!-- Search bar -->
-	<nav>
-	<div class="nav-wrapper teal">
-	  <form>
-	    <div class="input-field">
-	      <input id="search" type="search" required>
-	      <label for="search"><i class="material-icons">search</i></label>
-	    </div>
-	  </form>
-	</div>
+	  <!-- Side navigation -->
+	  <ul id="slide-out" class="side-nav">
+	    <li class="logo">
+	      <a href="#"><b>{{ current_user.name }}</b></a>
+	    </li>
+	    <li><a href="{{url_for('user_shelf')}}">Shelf</a></li>
+	    <li><a href="{{url_for('user_history')}}">History</a></li>
+	    <li><a href="{{url_for('logout')}}">Logout</a></li>
+	  </ul>
+	  <a href="#" data-activates="slide-out" class="button-collapse"><i class="mdi-navigation-menu"></i></a>
 	</nav>
 
 	{% block user_content %}
@@ -52,4 +53,13 @@
 	{% endblock %}
 
   <!--footer, if any-->
+{% endblock %}
+
+{% block extrajs %}
+<script type="text/javascript">
+  // Initialize collapse button
+  $(".button-collapse").sideNav();
+  // Initialize collapsible (uncomment the line below if you use the dropdown variation)
+  $('.collapsible').collapsible();
+</script>
 {% endblock %}
