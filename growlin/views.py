@@ -68,7 +68,7 @@ def user_borrow():
         if b and b is not None:
             error = 'That item is already borrowed by %(name)s (%(group)s)!' % {
                 'name': b.user.name,
-                'group': b.user.user_group
+                'group': b.user.group
                 }
             return render_template('user/borrow.htm',
                 error=error,
