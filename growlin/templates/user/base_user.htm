@@ -10,7 +10,7 @@
 {% block content %}
 
 	<nav class="nav-wrapper teal" style="padding-left:20px">
-	  <a href="#!" class="brand-logo" style="font-weight: 300">Shelf</a>
+	  <a href="#!" class="brand-logo" style="font-weight: 300">{% block page_title %}Growlin{% endblock %}</a>
 	  <ul class="right hide-on-med-and-down">
 	    <li>
 	        <a href="{{url_for('user_shelf')}}" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Shelf">
