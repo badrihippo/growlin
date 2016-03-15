@@ -8,7 +8,7 @@
  	</style>
 {% endblock %}
 {% block content %}
-
+      <div class="navbar-fixed">
 	<nav class="nav-wrapper teal" style="padding-left:20px">
 	  <a href="#!" class="brand-logo" style="font-weight: 300">{% block page_title %}Growlin{% endblock %}</a>
 	  <ul class="right hide-on-med-and-down">
@@ -47,7 +47,7 @@
 	  </ul>
 	  <a href="#" data-activates="slide-out" class="button-collapse"><i class="mdi-navigation-menu"></i></a>
 	</nav>
-
+      </div>
 	{% block user_content %}
 	<p>You should ideally not be reading this message, unless you are a developer.</p>
 	{% endblock %}
