@@ -27,6 +27,10 @@ class UserGroup(db.Document):
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
 
+    meta = {
+        'ordering': ['position']
+    }
+
 class UserRole(db.Document):    
     name = db.StringField(max_length=16)
     # List of permissions supplied by this role

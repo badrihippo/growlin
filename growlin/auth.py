@@ -62,7 +62,13 @@ def login():
 	else:
 	    group_dict[user.group.name] = [user]
     # Serialize to list
-    group_list = [{'name': k, 'users': v} for k,v in group_dict.items()]
+    group_list = []
+    for g in UserGroup.objects:
+	# Using group.objects so that list is sorted
+	# User list is also sorted while adding
+	u = group_dict.get(g.name, [])
+	u.sort()
+	group_list.append({'name': g.name, 'users': u})
     if form.validate_on_submit():
         # Login and validate the user.
         user = load_user(username=form.username.data)
