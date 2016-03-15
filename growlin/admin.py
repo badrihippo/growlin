@@ -26,9 +26,11 @@ class BaseModelView(ModelView):
 class AdminModelUser(BaseModelView):
     can_create = True
     column_list = ('username', 'name', 'group', 'active')
+    column_searchable_list = ['username', 'name']
 
 class AdminModelPublication(BaseModelView):
     form_excluded_columns = ['borrow_current']
+    column_searchable_list = ['title']
 
 class AdminModelBorrowing(BaseModelView):
     form_excluded_columns = ['copydata_type', 'copydata_id']
