@@ -1,0 +1,25 @@
+{% macro render_item(item, returnable=False, borrow_date=None) -%}
+<div class="collection-item avatar">
+  <img src="../../static/img/book.png" alt="" class="circle">
+  <!-- 
+      Over Here Depending on the 'pubtype'
+      the icon could change.
+      Currently I've Just put one book icon.
+      -abhiniype
+   -->
+  <span class="title"><b>{{item.title}}</b></span>
+  {% if borrow_date or item.borrow_current.borrow_date %}
+  <p><i>{{ borrow_date or item.borrow_current.borrow_date}}</i><br>
+  {%- endif %}
+  </p>
+  {% if returnable -%}
+  <a href="{{ url_for('user_return', borrowid=item.id) }}" class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Return">
+    <i class="material-icons" style="font-size:40px">done</i>
+  </a>
+  {%- else -%}
+  <a href="#" class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="More info">
+    <i class="material-icons" style="font-size:40px">info</i>
+  </a>
+  {% endif -%}
+</div>
+{%- endmacro %}

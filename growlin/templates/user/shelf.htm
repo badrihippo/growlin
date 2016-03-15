@@ -1,4 +1,6 @@
 {% extends 'user/base_user.htm' %}
+{% import 'shelf/macros.htm' as shelf_macros %}
+
 {% block extrahead %}
   <style type="text/css">
       body{
@@ -12,23 +14,9 @@
 {% block user_content %}
 
 <div class="collection">
-  {% for item in records %}
-  <div class="collection-item avatar">
-    <img src="../../static/img/book.png" alt="" class="circle">
-    <!-- 
-        Over Here Depending on the 'pubtype'
-        the icon could change.
-        Currently I've Just put one book icon.
-        -abhiniype
-     -->
-    <span class="title"><b>{{item.title}}</b></span>
-    <p><i>{{item.borrow_current.borrow_date}}</i><br>
-    </p>
-    <a href="{{ url_for('user_return', borrowid=item.id) }}" class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Return">
-      <i class="material-icons return" style="font-size:40px">done</i>
-    </a>
-  </div>
-  {% endfor %}
+  {% for item in records -%}
+  {{ shelf_macros.render_item(item, returnable=True) }}
+  {%- endfor %}
 </div>
 
 
