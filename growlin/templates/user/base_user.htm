@@ -14,7 +14,7 @@
 	  <ul class="right hide-on-med-and-down">
 	    <li>
 	        <a href="{{url_for('user_shelf')}}" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Shelf">
-	        	{{ current_user.name }}
+	        	{{ current_user.name }} ({{current_user.group.name}})
 	        </a>
 	    </li>
 	  	<!-- Shelf Button -->
@@ -39,7 +39,7 @@
 	  <!-- Side navigation -->
 	  <ul id="slide-out" class="side-nav">
 	    <li class="logo">
-	      <a href="#"><b>{{ current_user.name }}</b></a>
+	      <a href="#"><b>{{ current_user.name }} ({{ current_user.group.name }})</b></a>
 	    </li>
 	    <li><a href="{{url_for('user_shelf')}}">Shelf</a></li>
 	    <li><a href="{{url_for('user_history')}}">History</a></li>
