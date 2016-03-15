@@ -246,7 +246,7 @@ class Item(BaseModel):
     price = peewee.DecimalField(decimal_places=2, null=True)
     price_currency = peewee.ForeignKeyField(Currency, null=True)
     receipt_date = peewee.DateTimeField(default=datetime.now()) # TODO: Possible to do only date?
-    source = peewee.CharField(max_length=64, null=True) # Where it came from
+    source = peewee.CharField(max_length=128, null=True) # Where it came from
     
     # TODO: May be implemented later
     #display_title = peewee.CharField(max_length=256,

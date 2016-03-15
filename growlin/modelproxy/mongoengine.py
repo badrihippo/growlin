@@ -207,7 +207,7 @@ class Item(db.Document):
     price = db.DecimalField(precision=2)
     price_currency = db.ReferenceField(Currency)
     receipt_date = db.DateTimeField(required=True, default=datetime.now()) # TODO: Possible to do only date?
-    source = db.StringField(max_length=64) # Where it came from
+    source = db.StringField(max_length=128) # Where it came from
 
     borrow_current = db.EmbeddedDocumentField(BorrowCurrent)
     
