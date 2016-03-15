@@ -8,6 +8,13 @@
       -abhiniype
    -->
   <span class="title"><b>{{item.title}}</b></span>
+  {% if item.authors|length > 0 -%}
+    <span class="authors">
+      {%- if item.authors|length == 1 -%}
+        by {{ item.authors[0] }}
+      {%- endif -%}
+    </span>
+  {%- endif %}
   {% if borrow_date or item.borrow_current.borrow_date %}
   <p><i>{{ borrow_date or item.borrow_current.borrow_date}}</i><br>
   {%- endif %}
