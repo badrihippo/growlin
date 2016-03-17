@@ -47,7 +47,9 @@
     <!-- More Buttons Can Be Added Here -->
   </ul>
 </div>
-      
+{% endblock %}
+{% block extrajs -%}
+{{ super() }}
 <script type="text/javascript">
   $(document).ready(function(){
     $('.collection-item').mouseenter(function(){
@@ -58,4 +60,4 @@
     });
   });
 </script>
-{% endblock %}
+{%- endblock %}

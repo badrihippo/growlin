@@ -20,7 +20,9 @@
   </div>
   <div class="col m2">&nbsp;</div>
 </div>
-      
+{% endblock %}
+{% block extrajs -%}
+{{ super() }}
 <script type="text/javascript">
   $(document).ready(function(){
     $('.collection-item').mouseenter(function(){
@@ -31,4 +33,4 @@
     });
   });
 </script>
-{% endblock %}
+{%- endblock %}
