@@ -8,6 +8,7 @@ from datetime import datetime
 class GrowlinException(Exception): pass
 class BorrowError(GrowlinException): pass
 class AlreadyBorrowed(BorrowError): pass
+class AccessionMismatch(BorrowError): pass
 
 # Admin masters
 
@@ -83,7 +84,7 @@ class User(db.Document, UserMixin):
 
         # Check for accession number mismatch
         if (accession is not None) and (accession != item.accession):
-            raise BorrowError('Accession numbers do not match')
+            raise AccessionMismatch('Accession numbers do not match')
         b = BorrowCurrent(
             user=self,
             borrow_date=datetime.now(),
@@ -113,7 +114,7 @@ class User(db.Document, UserMixin):
             raise BorrowError('You have not borrowed that item')
 
         if (accession is not None) and (accession != item.accession):
-            raise BorrowError('Accession numbers do not match')
+            raise AccessionMismatch('Accession numbers do not match')
                 
         p = BorrowPast(
             item=item,

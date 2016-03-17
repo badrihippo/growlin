@@ -9,6 +9,7 @@ from datetime import datetime
 class GrowlinException(Exception): pass
 class BorrowError(GrowlinException): pass
 class AlreadyBorrowed(BorrowError): pass
+class AccessionMismatch(BorrowError): pass
 
 # Thanks to Nils Philippsen on StackOverflow: http://stackoverflow.com/a/2544313/1196444
 class classproperty(property):
@@ -117,7 +118,7 @@ class User(BaseModel, UserMixin):
 
         # Check for accession number mismatch
         if (accession is not None) and (accession != item.accession):
-            raise BorrowError('Accession numbers do not match')
+            raise AccessionMismatch('Accession numbers do not match')
         b = BorrowCurrent(
             user=self,
             borrow_date=datetime.now(),
@@ -147,7 +148,7 @@ class User(BaseModel, UserMixin):
             raise BorrowError('You have not borrowed that item')
 
         if (accession is not None) and (accession != item.accession):
-            raise BorrowError('Accession numbers do not match')
+            raise AccessionMismatch('Accession numbers do not match')
                 
         p = BorrowPast(
             item=item,
