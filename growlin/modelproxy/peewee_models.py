@@ -310,8 +310,8 @@ class BookPublicationDetails():
 class BookItem(Item):
     call_no = peewee.CharField(max_length=8, null=True)
 
-    publication_pubisher = peewee.ForeignKeyField(Publisher, null=True)
-    pulication_place = peewee.ForeignKeyField(PublishPlace, null=True)
+    publication_publisher = peewee.ForeignKeyField(Publisher, null=True)
+    publication_place = peewee.ForeignKeyField(PublishPlace, null=True)
     publication_year = peewee.IntegerField(null=True)
 
     isbn = peewee.CharField(max_length=17, null=True) # TODO: Add validation
