@@ -3,6 +3,7 @@ from .app import app
 from .auth import current_user, login_required
 from .models import *
 from .forms import *
+from .admin import admin_permission
 
 @app.route('/')
 def home():
@@ -22,13 +23,16 @@ def user_shelf():
     item_types = ItemType.objects
     return render_template('user/shelf.htm',
         records=records,
-        item_types=item_types)
+        item_types=item_types,
+        admin_permission=admin_permission)
 
 @app.route('/shelf/history/')
 @login_required
 def user_history():
     records = current_user.get_past_borrowings()
-    return render_template('shelf/history.htm', records=records)
+    return render_template('shelf/history.htm',
+        records=records,
+        admin_permission=admin_permission)
 
 @app.route('/shelf/borrow/', methods=['GET', 'POST'])
 def user_borrow():
