@@ -31,6 +31,59 @@ class AdminModelUser(BaseModelView):
 class AdminModelPublication(BaseModelView):
     form_excluded_columns = ['borrow_current']
     column_searchable_list = ['title']
+    form_ajax_refs = {
+    'campus_location': {
+        'fields': ['name'],
+        'page_size': 5
+    },
+    'promo_location': {
+        'fields': ['name'],
+        'page_size': 5
+    },
+    'price_currency': {
+        'fields': ['name'],
+        'page_size': 5
+    },
+    }
+    column_list = ('accession', 'title', 'campus_location', 'promo_location')
+    can_view_details = True
+
+class AdminModelBookItem(AdminModelPublication):
+    form_ajax_refs = {
+    'publication_publisher': {
+        'fields': ['name'],
+        'page_size': 10
+    },
+    'publication_place': {
+        'fields': ['name'],
+        'page_size': 10
+    },
+    'authors': {
+        'fields': ['name'],
+        'page_size': 10
+    },
+    'editors': {
+        'fields': ['name'],
+        'page_size': 10
+    },
+    'illustrators': {
+        'fields': ['name'],
+        'page_size': 10
+    },
+    'campus_location': {
+        'fields': ['name'],
+        'page_size': 5
+    },
+    'promo_location': {
+        'fields': ['name'],
+        'page_size': 5
+    },
+    'price_currency': {
+        'fields': ['name'],
+        'page_size': 5
+    },
+    }
+    column_list = ('accession', 'title', 'authors', 'editors', 'campus_location', 'promo_location')
 
 class AdminModelBorrowing(BaseModelView):
     form_excluded_columns = ['copydata_type', 'copydata_id']
@@ -53,16 +106,50 @@ if app.config['GROWLIN_USE_PEEWEE']:
             except ItemType.DoesNotExist:
                 print 'Warning: Returning all items'
                 return self.model.select()
-    class AdminModelBookItem(AdminModelTypeItem):
+    class AdminModelBookTypeItem(AdminModelTypeItem, AdminModelBookItem):
         item_type = 'book'
-    class AdminModelPeriodicalItem(AdminModelTypeItem):
+        form_ajax_refs = {
+        'publication_publisher': {
+            'fields': ['name'],
+            'page_size': 10
+        },
+        'publication_place': {
+            'fields': ['name'],
+            'page_size': 10
+        },
+        'author': {
+            'fields': ['name'],
+            'page_size': 10
+            },
+        'editor': {
+            'fields': ['name'],
+            'page_size': 10
+        },
+        'illustrator': {
+            'fields': ['name'],
+            'page_size': 10
+        },
+        'campus_location': {
+            'fields': ['name'],
+            'page_size': 5
+        },
+        'promo_location': {
+            'fields': ['name'],
+            'page_size': 5
+        },
+        'price_currency': {
+            'fields': ['name'],
+            'page_size': 5
+        },
+        }
+    class AdminModelPeriodicalTypeItem(AdminModelTypeItem):
         item_type = 'periodical'
 
-    admin.add_view(AdminModelBookItem(model=BookItem, name='Books', category='Registry'))
-    admin.add_view(AdminModelPeriodicalItem(model=PeriodicalItem, name='Periodicals', category='Registry'))
+    admin.add_view(AdminModelBookTypeItem(model=BookItem, name='Books', category='Registry'))
+    admin.add_view(AdminModelPeriodicalTypeItem(model=PeriodicalItem, name='Periodicals', category='Registry'))
 
 else:
-    admin.add_view(AdminModelPublication(BookItem, name='Books', category='Registry'))
+    admin.add_view(AdminModelBookItem(BookItem, name='Books', category='Registry'))
     admin.add_view(AdminModelPublication(PeriodicalItem, name='Periodicals', category='Registry'))
 
 admin.add_view(AdminModelUser(User, name='Users', category='Accounts'))
