@@ -233,7 +233,7 @@ class Item(BaseModel):
     title = peewee.CharField(max_length=128,
         help_text='Full title of book, or name of Magazine/Periodical')
     subtitle = peewee.CharField(max_length=128, null=True)
-    keywords = peewee.CharField(max_length=256)
+    keywords = peewee.CharField(max_length=256, null=True)
     comments = peewee.CharField(null=True)
 
     campus_location = peewee.ForeignKeyField(CampusLocation)
