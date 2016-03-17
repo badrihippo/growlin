@@ -226,14 +226,14 @@ class Item(db.Document):
 
     meta = {'allow_inheritance': True}
 
-class BookPublicationDetails(db.EmbeddedDocument):
-    publisher = db.ReferenceField(Publisher)
-    place = db.ReferenceField(PublishPlace)
-    year = db.IntField(max_value=9999) # TODO: Make this more year-friendly
-
 class BookItem(Item):
     call_nos = db.ListField(db.StringField(max_length=8))
-    publication = db.EmbeddedDocumentField(BookPublicationDetails)
+
+    # Publication
+    publication_publisher = db.ReferenceField(Publisher)
+    publication_place = db.ReferenceField(PublishPlace)
+    publication_year = db.IntField(max_value=9999)
+
     isbn = db.StringField(max_length=17) # TODO: Add validation
     authors = db.ListField(db.ReferenceField(Creator))
     editor = db.ListField(db.ReferenceField(Creator))
