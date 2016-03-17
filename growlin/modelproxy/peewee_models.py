@@ -316,19 +316,23 @@ class BookItem(Item):
 
     isbn = peewee.CharField(max_length=17, null=True) # TODO: Add validation
 
+    author = peewee.ForeignKeyField(Creator, related_name='authored_items', null=True)
+    editor = peewee.ForeignKeyField(Creator, related_name='edited_items', null=True)
+    illustrator = peewee.ForeignKeyField(Creator, related_name='illustrated_items', null=True)
+
     @property
     def call_nos(self):
         return [self.call_no]
 
     @property
     def authors(self):
-        return Creator.select(Creator, BookAuthors).join(BookAuthors).where(BookAuthors.book_item == self)
+        return [self.author]
     @property
     def editors(self):
-        return Creator.select(Creator, BookEditors).join(BookEditors).where(BookEditors.book_item == self)
+        return [self.editor]
     @property
     def illustrators(self):
-        return Creator.select(Creator, BookEditors).join(BookEditors).where(BookEditors.book_item == self)
+        return [self.illustrator]
 
     # EmbeddedDocument compat
     @property
@@ -345,10 +349,6 @@ class BookCreator(Item):
     @property
     def name(self):
         return self.creator.name
-
-class BookAuthors(BookCreator): pass
-class BookEditors(BookCreator): pass
-class BookIllustrators(BookCreator): pass
 
 class PeriodicalSubscription(BaseModel):
     periodical_name = peewee.CharField(max_length=64)
