@@ -30,7 +30,7 @@ def user_history():
 @app.route('/shelf/borrow/', methods=['GET', 'POST'])
 def user_borrow():
     cform = AccessionItemForm()
-    form = AccessionForm()
+    form = AccessionTypeForm()
     if cform.validate_on_submit():
         # Accession number entered and confirmed
         acc = cform.accession.data
@@ -54,13 +54,28 @@ def user_borrow():
         # Using new AccessionItemForm instead of validation-failed one
         cform = AccessionItemForm()
         a = form.accession.data
+        i = form.item_type.data
 
+        # Check for item type exists
+        try:
+            itype = ItemType.objects.get(name=i)
+        except Item.DoesNotExist:
+            return render_template('user/borrow.htm',
+                error='Invalid item type',
+                form = form)
         # Check for item exists
         try:
             item = Item.objects.get(accession=a)
         except Item.DoesNotExist:
+            if itype:
+                a = '%s:%s' % (itype.prefix, a)
+                try:
+                    item = Item.objects.get(accession=a)
+                except Item.DoesNotExist:
+                    pass
+        if item is None:
             return render_template('user/borrow.htm',
-                error='This book does not exist. Please check the number and try again.',
+                error='This %s does not exist. Please check the number and try again.' % i,
                 form = form)
 
         # Check for already borrowed
