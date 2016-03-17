@@ -19,7 +19,10 @@ def user(username):
 @login_required
 def user_shelf():
     records = current_user.get_current_borrowings()
-    return render_template('user/shelf.htm', records=records)
+    item_types = ItemType.objects
+    return render_template('user/shelf.htm',
+        records=records,
+        item_types=item_types)
 
 @app.route('/shelf/history/')
 @login_required
