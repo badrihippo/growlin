@@ -1,33 +1,44 @@
 {% extends 'user/base_user.htm' %}
 {% block user_content %}
 <div class="container">
-  <div class="card hoverable center-align">
-    <form action="{{url_for('user_borrow')}}" method="POST">
-      {% if error or form.errors%}
-      <ul class="card-panel red lighten-1">
-        <li>{{ error }}</li>
-        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
-          {% for error in field_errors %}
-            <li class="white-text" style="font-weight:300" height="50px">{{error}}</li>
+  <div class="row">
+    <div class="card center-align col s12">
+      <form action="{{url_for('user_borrow')}}" method="POST">
+        {% if error or form.errors%}
+        <ul class="card-panel red lighten-1">
+          <li>{{ error }}</li>
+          {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+            {% for error in field_errors %}
+              <li class="white-text" style="font-weight:300" height="50px">{{error}}</li>
+            {% endfor %}
           {% endfor %}
-        {% endfor %}
-      </ul>
-      {% endif %}
-      {{form.csrf_token}}
-      {% if form.item %}{# implies borrow confirmation #}
-      <h4>Confirmation</h4>
-      <input id="item" name="item" type="hidden" value="{{form.item}}">
-      <input id="accession" name="accession" type="hidden" value="{{form.accession}}">
-      <p>Please confirm that you want to borrow "{{item.title}}"{% if item.authors %} by {% for author in item.authors %}{{ author.name }}, {% endfor %}{% endif %}</p>
-      <a class="btn btn-default" href="{{url_for('user_shelf')}}">Cancel</a>
-      <input class="btn btn-primary" type="submit" value="Confirm" />
-      {% else %}
-      <h4>Enter accession</h4>
-      <p>{{form.accession}}</p>
-      <a class="btn btn-default" href="{{url_for('user_shelf')}}">Cancel</a>
-      <input class="btn btn-primary" type="submit" value="Next" />
-      {% endif %}
-    </form>
+        </ul>
+        {% endif %}
+        {{form.csrf_token}}
+        {% if form.item %}{# implies borrow confirmation #}
+        <h4>Confirmation</h4>
+        <input id="item" name="item" type="hidden" value="{{form.item}}">
+        <input id="accession" name="accession" type="hidden" value="{{form.accession}}">
+        <p>Please confirm that you want to borrow "{{item.title}}"{% if item.authors %} by {% for author in item.authors %}{{ author.name }}, {% endfor %}{% endif %}</p>
+        <a class="btn btn-default" href="{{url_for('user_shelf')}}">Cancel</a>
+        <input class="btn btn-primary" type="submit" value="Confirm" />
+        {% else %}
+        <h4>Borrow item</h4>
+        <div class="row">
+          <div class="input-field col s12">{{ form.item_type }}</div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">{{ form.accession.label }} {{ form.accession }}</div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <a class="btn btn-default" href="{{url_for('user_shelf')}}">Cancel</a>
+            <input class="btn btn-primary" type="submit" value="Next" />
+          </div>
+        </div>
+        {% endif %}
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}
