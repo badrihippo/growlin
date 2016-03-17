@@ -115,12 +115,22 @@ def user_return(borrowid):
         return redirect(url_for('user_shelf'))
     form = AccessionForm()
     if form.validate_on_submit():
+        a = form.accession.data
         try:
-            current_user.unborrow(item, form.accession.data)
+            current_user.unborrow(item, a)
             flash('"%(title)s" has been successfully returned' % {
                 'title': item.title})
-        except BorrowError, e:
-            flash(e.message)
+        except AccessionMismatch, e:
+            try:
+                itype = ItemType.objects.get(name=item.item_class)
+                a = '%s:%s' % (itype.prefix, a)
+                current_user.unborrow(item, a)
+                flash('"%(title)s" has been successfully returned' % {
+                    'title': item.title})
+            except ItemType.DoesNotExist, f:
+                flash(e.message)
+            except BorrowError, e:
+                flash(e.message)
     else:
         if item.borrow_current.user.id == current_user.id:
             msg = 'Please enter the accession number for "%(title)s"' % {
