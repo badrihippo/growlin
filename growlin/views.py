@@ -34,9 +34,10 @@ def user_borrow():
     if cform.validate_on_submit():
         # Accession number entered and confirmed
         acc = cform.accession.data
+        itemid = cform.item.data
         # Check for item exists
         try:
-            item = Item.objects.get(accession=acc)
+            item = Item.objects.get(id=itemid)
         except Item.DoesNotExist:
             return render_template('user/borrow.htm',
                 error='This book does not exist. Please check the number and try again.',
@@ -65,7 +66,7 @@ def user_borrow():
                 form = form)
         # Check for item exists
         try:
-            item = Item.objects.get(accession=a)
+            Item.objects.get(accession=a)
         except Item.DoesNotExist:
             if itype:
                 a = '%s:%s' % (itype.prefix, a)
@@ -76,6 +77,12 @@ def user_borrow():
         if item is None:
             return render_template('user/borrow.htm',
                 error='This %s does not exist. Please check the number and try again.' % i,
+                form = form)
+
+        # Check for wrong item type
+        if item.item_class != i:
+            return render_template('user/borrow.htm',
+                error='This %s does not exist. Please check the item type and try again.' % i,
                 form = form)
 
         # Check for already borrowed
@@ -92,7 +99,7 @@ def user_borrow():
             #Not borrowed so it's okay
             # Show confirmation form
             cform.item = item.id
-            cform.accession = form.accession.data
+            cform.accession = a
             return render_template('user/borrow.htm',
                 form=cform, item=item)
     else:
