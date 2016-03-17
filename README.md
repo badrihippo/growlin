@@ -42,3 +42,12 @@ Once everything is installed, you can run the server using:
     python growlin.py
 
 A development server will be started, which you can access by pointing your browser to `localhost:5000`.
+
+Files from other repos
+======================
+
+Growlin also includes files from the following libraries for convenience.
+For licensing details, please check the respective repo/website.
+
+  * Fontawesome (http://fontawesome.io)
+  * Materialize (http://materializecss.com)
