@@ -12,13 +12,15 @@
 {% block page_title %}Shelf{% endblock %}
 
 {% block user_content %}
-
-<div class="collection">
-  {% for item in records -%}
-  {{ shelf_macros.render_item(item, returnable=True) }}
-  {%- endfor %}
+<div class="row">
+  <div class="col m2">&nbsp;</div>
+  <div class="col m8 s12 collection">
+    {% for item in records -%}
+    {{ shelf_macros.render_item(item, returnable=True) }}
+    {%- endfor %}
+  </div>
+  <div class="col m2">&nbsp;</div>
 </div>
-
 <!-- FAB (Floating Action Button) -->
 <div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
   <!-- Borrow Button -->

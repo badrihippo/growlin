@@ -10,11 +10,15 @@
 {% endblock %}
 {% block page_title %}History{% endblock %}
 {% block user_content %}
-
-<div class="collection">
-  {% for r in records -%}
-  {{ shelf_macros.render_item(r.item, borrow_date=r.borrow_date) }}
-  {%- endfor %}
+<div class="row">
+  <div class="col m2">&nbsp;</div>
+  <div class="col m8 s12 collection ">
+      {% for r in records -%}
+      {{ shelf_macros.render_item(r.item, borrow_date=r.borrow_date) }}
+      {%- endfor %}
+    </div>
+  </div>
+  <div class="col m2">&nbsp;</div>
 </div>
 
 
