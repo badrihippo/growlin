@@ -20,45 +20,6 @@
   </div>
   <div class="col m2">&nbsp;</div>
 </div>
-
-
-
-
-<!-- FAB (Floating Action Button) -->
-<div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
-  <!-- Borrow Button -->
-  <a class="btn-floating btn-large red tooltipped waves-effect waves-light" 
-  data-position="left" 
-  data-delay="50" 
-  data-tooltip="Borrow"
-  href="{{url_for('user_borrow')}}"
-  onclick="Materialize.toast('Thanks For Borrowing!', 4000)">
-    <i class="large material-icons">class</i>
-  </a>
-  <ul>
-    <!-- Renew Button -->
-    <li>
-      <a class="btn-floating btn-large blue tooltipped waves-effect waves-light"
-       data-position="left" 
-       data-delay="50" 
-       data-tooltip="Renew"
-       onclick="Materialize.toast('When Are You Going to Finish it!', 4000)">
-        <i class="material-icons">loop</i>
-      </a>
-    </li>
-    <!-- Return Button -->
-    <li>
-      <a class="btn-floating btn-large green tooltipped waves-effect waves-light" 
-      data-position="left" 
-      data-delay="50" 
-      data-tooltip="Return"
-      onclick="Materialize.toast('Thanks for Returning! Hope you enjoyed it!', 4000)">
-        <i class="material-icons">done</i>
-      </a>
-    </li>
-    <!-- More Buttons Can Be Added Here -->
-  </ul>
-</div>
       
 <script type="text/javascript">
   $(document).ready(function(){
