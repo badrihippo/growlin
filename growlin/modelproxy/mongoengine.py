@@ -216,7 +216,15 @@ class Item(db.Document):
     #    help_text='Short version of title, for displaying in lists.\
     #    Leave blank or set to "auto" to auto-set',
     #    default='auto')
-    
+
+    @property
+    def item_class(self):
+        '''
+        Return the item class of the current object
+        '''
+        c = self._cls.split('.')[-1].lower()
+        if c != 'iuem': c = c.replace('item', '')
+        return c
     def __unicode__(self):
         return '%(title)s' % {
             'title': self.title}
