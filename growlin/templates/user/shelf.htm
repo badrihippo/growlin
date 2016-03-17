@@ -14,10 +14,12 @@
 {% block user_content %}
 <div class="row">
   <div class="col m2">&nbsp;</div>
-  <div class="col m8 s12 collection">
+  <div class="col m8 s12">
+    <div class="collection">
     {% for item in records -%}
     {{ shelf_macros.render_item(item, returnable=True) }}
     {%- endfor %}
+    </div>
   </div>
   <div class="col m2">&nbsp;</div>
 </div>

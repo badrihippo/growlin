@@ -12,7 +12,8 @@
 {% block user_content %}
 <div class="row">
   <div class="col m2">&nbsp;</div>
-  <div class="col m8 s12 collection ">
+  <div class="col m8 s12">
+    <div class="collection ">
       {% for r in records -%}
       {{ shelf_macros.render_item(r.item, borrow_date=r.borrow_date) }}
       {%- endfor %}
