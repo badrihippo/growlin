@@ -236,8 +236,8 @@ class BookItem(Item):
 
     isbn = db.StringField(max_length=17) # TODO: Add validation
     authors = db.ListField(db.ReferenceField(Creator))
-    editor = db.ListField(db.ReferenceField(Creator))
-    illustrator = db.ListField(db.ReferenceField(Creator))
+    editors = db.ListField(db.ReferenceField(Creator))
+    illustrators = db.ListField(db.ReferenceField(Creator))
 
 class PeriodicalSubscription(db.Document):
     periodical_name = db.StringField(max_length=64)
