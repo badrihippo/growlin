@@ -157,8 +157,7 @@ admin.add_view(BaseModelView(UserGroup, name='Groups', category='Accounts'))
 admin.add_view(BaseModelView(UserRole, name='Roles', category='Accounts'))
 admin.add_view(AdminModelBorrowing(BorrowPast, name='Past borrowings', category='Accounts'))
 
-if app.config['GROWLIN_USE_PEEWEE']:
-    admin.add_view(BaseModelView(ItemType, name='Item types', category='Metadata'))
+admin.add_view(BaseModelView(ItemType, name='Item types', category='Metadata'))
 
 admin.add_view(BaseModelView(Publisher, name='Publishers', category='Metadata'))
 admin.add_view(BaseModelView(PublishPlace, name='Publish locations', category='Metadata'))

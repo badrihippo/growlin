@@ -179,6 +179,12 @@ class BorrowCurrent(db.EmbeddedDocument):
             'user': self.user,
             'date': self.borrow_date}
 
+class ItemType(db.Document):
+    '''Holds extra config data about the different item classes'''
+    name = db.StringField()
+    prefix = db.StringField()
+    icon_name = db.StringField()
+
 class Item(db.Document):
     '''
     Holds data for items in the Accession Register. Each of these items can 
@@ -298,6 +304,12 @@ class BorrowPast(db.Document):
             'user': self.user,
             'group': self.user_group,
             'date': self.borrow_date}
+
+def get_item_types():
+    '''
+    Returns a list of currenty available item types
+    '''
+    return [i.name for i in ItemType.objects]
 
 def create_tables():
     '''WARNING: Deprecated function. Do not use!'''

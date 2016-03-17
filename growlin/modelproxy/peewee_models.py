@@ -211,6 +211,8 @@ class Genre(BaseModel):
 
 class ItemType(BaseModel):
     item_type = peewee.CharField(max_length=32)
+    prefix = peewee.CharField(max_length=1)
+    icon_name = peewee.CharField(max_length=24)
 
     def __unicode__(self):
         return '%s' % self.item_type
@@ -410,3 +412,9 @@ class BorrowPast(BaseModel):
             'user': self.user,
             'group': self.user_group,
             'date': self.borrow_date}
+
+def get_item_types():
+    '''
+    Returns a list of currenty available item types
+    '''
+    return [i.name for i in ItemType.select()]
