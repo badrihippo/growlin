@@ -185,6 +185,7 @@ class ItemType(db.Document):
     name = db.StringField()
     prefix = db.StringField()
     icon_name = db.StringField()
+    icon_color = db.StringField()
 
 class Item(db.Document):
     '''

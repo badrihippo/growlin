@@ -214,6 +214,7 @@ class ItemType(BaseModel):
     item_type = peewee.CharField(max_length=32)
     prefix = peewee.CharField(max_length=1)
     icon_name = peewee.CharField(max_length=24)
+    icon_color = peewee.CharField(max_length=16)
 
     def __unicode__(self):
         return '%s' % self.item_type
