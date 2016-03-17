@@ -103,6 +103,8 @@ def user_borrow():
             return render_template('user/borrow.htm',
                 form=cform, item=item)
     else:
+        i = request.args.get('item_type', None)
+        if i is not None: form.item_type.data = i
         return render_template('user/borrow.htm', form=form)
 
 @app.route('/shelf/<borrowid>/return/', methods=['GET', 'POST'] )
