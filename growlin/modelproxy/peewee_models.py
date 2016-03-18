@@ -66,6 +66,8 @@ class UserGroup(BaseModel):
     # visible = db.BooleanField(default=True)
     def __unicode__(self):
         return '%(name)s' % {'name': self.name}
+    class Meta:
+        order_by = ['position']
 
 class UserRole(BaseModel):    
     name = peewee.CharField(max_length=16) # primary_key=True
@@ -94,6 +96,8 @@ class User(BaseModel, UserMixin):
     @property
     def roles(self):
         return UserRoles.select().where(UserRoles.user == self)
+    class Meta:
+        order_by = ['name']
 
     def __unicode__(self):
         return '%(name)s, %(group)s' % {
