@@ -74,7 +74,7 @@ def user_borrow():
         # Check for item exists
         item = None
         try:
-            Item.objects.get(accession=a)
+            item = Item.objects.get(accession=a)
         except Item.DoesNotExist:
             if itype:
                 a = '%s:%s' % (itype.prefix, a)
