@@ -87,7 +87,7 @@ class User(BaseModel, UserMixin):
     username = peewee.CharField(max_length=32, unique=True)
     password = peewee.CharField(max_length=512, null=True)
     # refnum = peewee.CharField(null=True)
-    name = peewee.CharField(max_length=24)
+    name = peewee.CharField(max_length=32)
     group = peewee.ForeignKeyField(UserGroup)
     email = peewee.CharField(null=True)
     # phone = peewee.CharField(max_length=16, null=True)
