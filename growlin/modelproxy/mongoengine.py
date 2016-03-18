@@ -199,7 +199,8 @@ class Item(db.Document):
         ('b', 'Borrowed'),
         ('l', 'Lost'),
         ('d', 'Discarded'),
-        ('q', 'Quarantined')))
+        ('q', 'Quarantined')),
+        default='a')
         
     title = db.StringField(max_length=128,
         help_text='Full title of book, or name of Magazine/Periodical', required=True)

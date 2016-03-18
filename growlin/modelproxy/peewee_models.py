@@ -236,7 +236,8 @@ class Item(BaseModel):
         ('b', 'Borrowed'),
         ('l', 'Lost'),
         ('d', 'Discarded'),
-        ('q', 'Quarantined')))
+        ('q', 'Quarantined')),
+        default='a')
         
     title = peewee.CharField(max_length=128,
         help_text='Full title of book, or name of Magazine/Periodical')
