@@ -221,7 +221,7 @@ class ItemType(BaseModel):
     icon_color = peewee.CharField(max_length=16, null=True)
 
     def __unicode__(self):
-        return '%s' % self.item_type
+        return '%s' % self.name
 
 class Item(BaseModel):
     '''
@@ -272,7 +272,7 @@ class Item(BaseModel):
 
     @property
     def item_class(self):
-        return self.item_type.item_type
+        return self.item_type.name
     @property
     def borrow_current(self):
         b = BorrowCurrent.select().where(BorrowCurrent.item == self)

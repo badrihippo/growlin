@@ -101,7 +101,7 @@ if app.config['GROWLIN_USE_PEEWEE']:
         item_type = 'item'
         def get_query(self):
             try:
-                my_type = ItemType.get(item_type=self.item_type)
+                my_type = ItemType.get(name=self.item_type)
                 return self.model.select().where(self.model.item_type == my_type)
             except ItemType.DoesNotExist:
                 print 'Warning: Returning all items'
