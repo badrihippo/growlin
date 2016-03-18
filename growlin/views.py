@@ -72,6 +72,7 @@ def user_borrow():
                 error='Invalid item type',
                 form = form)
         # Check for item exists
+        item = None
         try:
             Item.objects.get(accession=a)
         except Item.DoesNotExist:
