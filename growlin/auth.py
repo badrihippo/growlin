@@ -67,7 +67,6 @@ def login():
 	# Using group.objects so that list is sorted
 	# User list is also sorted while adding
 	u = group_dict.get(g.name, [])
-	u.sort()
 	group_list.append({'name': g.name, 'users': u})
     if form.validate_on_submit():
         # Login and validate the user.

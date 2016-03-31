@@ -61,6 +61,10 @@ class User(db.Document, UserMixin):
     active = db.BooleanField(default=True)
     roles = db.ListField(db.ReferenceField(UserRole))
 
+    meta = {
+        'ordering': ['name']
+    }
+
     def __unicode__(self):
         return '%(name)s, %(group)s' % {
             'name': self.name,
