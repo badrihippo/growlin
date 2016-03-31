@@ -359,9 +359,26 @@ class BookCreator(Item):
     def name(self):
         return self.creator.name
 
+PERIODICAL_FREQUENCY_CHOICES = (
+    ('unknown', 'Unknown'),
+    ('monthly', 'Monthly'),
+    ('bimonthly', 'Bi-monthly'),
+    ('fortnightly', 'Fortnightly'),
+    ('weekly', 'Weekly'),
+    ('quarterly', 'Quarterly'),
+)
 class PeriodicalSubscription(BaseModel):
     periodical_name = peewee.CharField(max_length=64)
-    # More fields can be added here...
+    description = peewee.TextField(null=True)
+    frequency = peewee.CharField(max_length=16,
+        choices=PERIODICAL_FREQUENCY_CHOICES)
+    current = peewee.BooleanField(default=True)
+    expiry = peewee.DateTimeField(null=True)
+    price = peewee.DecimalField(decimal_places=2, null=True)
+    price_currency = peewee.ForeignKeyField(Currency, null=True)
+    subscription_number = peewee.CharField(max_length=64, null=True)
+    receipt_mode = peewee.TextField(null=True)
+    comments = peewee.TextField(null=True)
 
     def __unicode__(self):
         return '%s' % self.periodical_name

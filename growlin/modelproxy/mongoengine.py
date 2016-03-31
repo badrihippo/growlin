@@ -260,9 +260,25 @@ class BookItem(Item):
     editors = db.ListField(db.ReferenceField(Creator))
     illustrators = db.ListField(db.ReferenceField(Creator))
 
+PERIODICAL_FREQUENCY_CHOICES = (
+    ('unknown', 'Unknown'),
+    ('monthly', 'Monthly'),
+    ('bimonthly', 'Bi-monthly'),
+    ('fortnightly', 'Fortnightly'),
+    ('weekly', 'Weekly'),
+    ('quarterly', 'Quarterly')
+)
 class PeriodicalSubscription(db.Document):
     periodical_name = db.StringField(max_length=64)
-    # More fields can be added here...
+    description = db.StringField()
+    frequency = db.StringField(choices=PERIODICAL_FREQUENCY_CHOICES)
+    current = db.BooleanField(default=True)
+    expiry = db.DateTimeField()
+    price = db.DecimalField(precision=2)
+    price_currency = db.ReferenceField(Currency)
+    subscription_number = db.StringField()
+    receipt_mode = db.StringField()
+    comments = db.StringField()
 
     def __unicode__(self):
         return '%s' % self.periodical_name
