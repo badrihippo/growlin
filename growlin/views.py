@@ -154,3 +154,7 @@ def user_return(borrowid):
             flash('That item was borrowed by %(name)s, not by you!' % {
                 'name': item.borrow_current.user.name})
     return redirect(url_for('user_shelf'))
+
+@app.route('/api/ok')
+def api_ok():
+    return "{status: 'OK'}"

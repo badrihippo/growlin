@@ -1,0 +1,39 @@
+{% extends 'admin/model/edit.html' %}
+
+{% block body %}
+    {{ super() }}
+    <div class="modal fade" id="fa_modal_window" tabindex="-1" role="dialog" aria-labelledby="fa_modal_label">
+    <div class="modal-dialog" role="document">
+      
+      <div class="modal-content">
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block tail %}
+{{ super() }}
+<script type="text/javascript">
+$('#fa_modal_window').on('loaded.bs.modal', function (e) {
+  var frm = $('#fa_modal_window form')[0];
+    frm.onsubmit = function (ev) {
+        $.ajax({
+            type: frm.method,
+            url: frm.action + '?modal=True',
+            data: $(frm).serialize(),
+            success: function (data) {
+              console.log(data);
+              if (data == "{status: 'OK'}") {
+                $('#fa_modal_window').modal('hide');
+                alert('New record was saved. You can now see it in the selection list.');
+              } else {
+                alert('Could not create record. Please try again.');
+              }
+            }
+        });
+
+        ev.preventDefault();
+    };
+});
+</script>
+{% endblock %}
