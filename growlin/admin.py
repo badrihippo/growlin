@@ -1,4 +1,5 @@
 from flask.ext.admin import Admin, BaseView, expose
+from .util.widgets import AddModelSelect2Widget
 from .app import app
 from .auth import Permission, RoleNeed
 from .models import *
@@ -22,6 +23,9 @@ class AdminRegistry(BaseView):
 class BaseModelView(ModelView):
     def is_accessible(self):
         return admin_permission.can()
+
+class AdminMetadataView(BaseModelView):
+    create_modal = True
 
 class AdminModelUser(BaseModelView):
     can_create = True
@@ -47,7 +51,8 @@ class AdminModelPublication(BaseModelView):
     }
     column_list = ('accession', 'title', 'campus_location', 'promo_location')
     can_view_details = True
-
+    create_template = 'admin/overrides/item_edit.htm'
+    edit_template = 'admin/overrides/item_edit.htm'
 class AdminModelBookItem(AdminModelPublication):
     form_ajax_refs = {
     'publication_publisher': {
@@ -84,6 +89,20 @@ class AdminModelBookItem(AdminModelPublication):
     },
     }
     column_list = ('accession', 'title', 'authors', 'editors', 'campus_location', 'promo_location')
+    form_args = {
+        'price_currency': {
+            'widget': AddModelSelect2Widget('/admin/currency/new'),
+        },
+        'campus_location': {
+            'widget': AddModelSelect2Widget('/admin/campuslocation/new'),
+        },
+        'publication_publisher': {
+            'widget': AddModelSelect2Widget('/admin/publisher/new'),
+        },
+        'publication_place': {
+            'widget': AddModelSelect2Widget('/admin/publishplace/new'),
+        },
+    }
 
 class AdminModelBorrowing(BaseModelView):
     form_excluded_columns = ['copydata_type', 'copydata_id']
@@ -159,11 +178,11 @@ admin.add_view(AdminModelBorrowing(BorrowPast, name='Past borrowings', category=
 
 admin.add_view(BaseModelView(ItemType, name='Item types', category='Metadata'))
 
-admin.add_view(BaseModelView(Publisher, name='Publishers', category='Metadata'))
-admin.add_view(BaseModelView(PublishPlace, name='Publish locations', category='Metadata'))
-admin.add_view(BaseModelView(CampusLocation, name='Campus locations', category='Metadata'))
-admin.add_view(BaseModelView(Genre, name='Genres', category='Metadata'))
-admin.add_view(BaseModelView(Currency, name='Currencies', category='Metadata'))
-admin.add_view(BaseModelView(Creator, name='Creators', category='Metadata'))
+admin.add_view(AdminMetadataView(Publisher, name='Publishers', category='Metadata'))
+admin.add_view(AdminMetadataView(PublishPlace, name='Publish locations', category='Metadata'))
+admin.add_view(AdminMetadataView(CampusLocation, name='Campus locations', category='Metadata'))
+admin.add_view(AdminMetadataView(Genre, name='Genres', category='Metadata'))
+admin.add_view(AdminMetadataView(Currency, name='Currencies', category='Metadata'))
+admin.add_view(AdminMetadataView(Creator, name='Creators', category='Metadata'))
 
 admin.add_view(BaseModelView(PeriodicalSubscription, name='Periodical subscriptions', category='More'))
