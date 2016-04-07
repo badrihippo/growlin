@@ -52,7 +52,7 @@ class BaseModel(db.Model):
 # Admin masters
 
 class CampusLocation(BaseModel):
-    name = peewee.CharField(max_length=32)
+    name = peewee.CharField(max_length=32, unique=True)
     # Following field can be enabled later, if required/implemented
     prevent_borrowing = peewee.BooleanField(default=False)
     def __unicode__(self):
@@ -70,7 +70,7 @@ class UserGroup(BaseModel):
         order_by = ['position']
 
 class UserRole(BaseModel):    
-    name = peewee.CharField(max_length=16) # primary_key=True
+    name = peewee.CharField(max_length=16, unique=True) # primary_key=True
     # List of permissions supplied by this role
     permissions = peewee.CharField(null=True)
 
@@ -210,12 +210,12 @@ class Creator(BaseModel):
 
 class Genre(BaseModel):
     '''Item genre'''
-    name = peewee.CharField(max_length=32) # primary_key=True
+    name = peewee.CharField(max_length=32, unique=True) # primary_key=True
     def __unicode__(self):
         return '%s' % self.name
 
 class ItemType(BaseModel):
-    name = peewee.CharField(max_length=32)
+    name = peewee.CharField(max_length=32, unique=True)
     prefix = peewee.CharField(max_length=1, null=True)
     icon_name = peewee.CharField(max_length=24, null=True)
     icon_color = peewee.CharField(max_length=16, null=True)
@@ -230,7 +230,7 @@ class Item(BaseModel):
     Number.
     '''
     item_type = peewee.ForeignKeyField(ItemType)
-    accession = peewee.CharField() # String since old values have prefix
+    accession = peewee.CharField(unique=True) # String since old values have prefix
     status = peewee.CharField(choices=(
         ('a','Available'),
         ('b', 'Borrowed'),

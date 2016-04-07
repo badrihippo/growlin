@@ -13,7 +13,7 @@ class AccessionMismatch(BorrowError): pass
 # Admin masters
 
 class CampusLocation(db.Document):
-    name = db.StringField(max_length=128)
+    name = db.StringField(max_length=128, unique=True)
     # Following field can be enabled later, if required/implemented
     prevent_borrowing = db.BooleanField(default=False)
     def __unicode__(self):
@@ -21,7 +21,7 @@ class CampusLocation(db.Document):
 
 class UserGroup(db.Document):
     '''Describes Group (eg. Class) for a User to belong to'''
-    name = db.StringField(max_length=128)
+    name = db.StringField(max_length=128, unique=True)
     position = db.IntField(verbose_name='Display order', default=0)
     # Can be enabled later if required/implemented
     # visible = db.BooleanField(default=True)
@@ -33,7 +33,7 @@ class UserGroup(db.Document):
     }
 
 class UserRole(db.Document):    
-    name = db.StringField(max_length=16)
+    name = db.StringField(max_length=16, unique=True)
     # List of permissions supplied by this role
     permissions = db.ListField(db.StringField(max_length=32))
     
@@ -186,7 +186,7 @@ class BorrowCurrent(db.EmbeddedDocument):
 
 class ItemType(db.Document):
     '''Holds extra config data about the different item classes'''
-    name = db.StringField()
+    name = db.StringField(unique=True)
     prefix = db.StringField()
     icon_name = db.StringField()
     icon_color = db.StringField()
@@ -197,7 +197,7 @@ class Item(db.Document):
     have one or more Copies associated with it, each with its own Accession
     Number.
     '''
-    accession = db.StringField(required=True) # String since old values have prefix
+    accession = db.StringField(required=True, unique=True) # String since old values have prefix
     status = db.StringField(choices=(
         ('a','Available'),
         ('b', 'Borrowed'),
