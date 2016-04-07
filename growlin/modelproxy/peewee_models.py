@@ -38,6 +38,9 @@ class ObjectManager():
     def get(self, *args, **kwargs):
         return self.model.get(*args, **kwargs)
 
+    def count(self, *args, **kwargs):
+        return self.model.select().count(*args, **kwargs)
+
 class BaseModel(db.Model):
     '''
     def __new__(cls, *args, **kwargs):
