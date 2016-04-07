@@ -32,6 +32,14 @@ class AdminModelUser(BaseModelView):
     column_list = ('username', 'name', 'group', 'active')
     column_searchable_list = ['username', 'name']
 
+# Helper function for efficiency during mongo/peewee switching
+if app.config['GROWLIN_USE_PEEWEE']:
+    def _check_unique_accession(accession):
+        return Item.select().where(Item.accession == accession).count() == 0
+else:
+    def _check_unique_accession(accession):
+        return Item.objects.filter(accession=accession).count() == 0
+
 class AdminModelPublication(BaseModelView):
     form_excluded_columns = ['borrow_current']
     column_searchable_list = ['title']
@@ -49,10 +57,31 @@ class AdminModelPublication(BaseModelView):
         'page_size': 5
     },
     }
+    form_args = {
+        'accession': {'default': '[autoset]'},
+    }
     column_list = ('accession', 'title', 'campus_location', 'promo_location')
     can_view_details = True
     create_template = 'admin/overrides/item_edit.htm'
     edit_template = 'admin/overrides/item_edit.htm'
+
+    def on_model_change(self, form, model, is_created):
+        if (not hasattr(form, 'accession')) or form.accession.data in ('', 'auto', '[autoset]'):
+            # Auto-set accession
+            # TODO: Come up with a more foolproof way of doing this (what
+            # if many records with smaller accession numbers are deleted?)
+            accession_int = Item.objects.count() + 1
+            ok = False
+            for _ in range(10): # Try only 10 times
+                if _check_unique_accession('%s' % accession_int):
+                    ok = True
+                    break
+                accession_int += 1
+            if ok:
+                model.accession = '%s' % accession_int
+            else:
+                raise ValueError('Could not generate a unique accession')
+
 class AdminModelBookItem(AdminModelPublication):
     form_ajax_refs = {
     'publication_publisher': {
@@ -90,6 +119,7 @@ class AdminModelBookItem(AdminModelPublication):
     }
     column_list = ('accession', 'title', 'authors', 'editors', 'campus_location', 'promo_location')
     form_args = {
+        'accession': {'default': '[autoset]'},
         'price_currency': {
             'widget': AddModelSelect2Widget('/admin/currency/new'),
         },
