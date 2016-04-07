@@ -15,7 +15,7 @@ except IOError:
 #
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'flask-admin-material'))
-from growlin.growlin import app as application
+from growlin import app as application
 
 #
 # Below for testing only
