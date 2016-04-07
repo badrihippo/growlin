@@ -8,8 +8,8 @@
     </div>
 </nav>
 <div class="container">
-  <div class="card-panel">
-    <h1 class="center-align flow-text">Please login</h1>
+  <div class="card-panel" id="login_panel">
+    <h1 class="center-align flow-text">Sign in to Growlin</h1>
     <p class="center-align flow-text">...or choose a user from the list below</p>
     <form id="login_form" method="post" action={{url_for('login')}}>
       {{form.csrf_token}}
@@ -56,7 +56,8 @@
     if (pass == true) {
       $('#{{form.password.id}}').show();
     } else {
-      $('#{{form.password.id}}').hide();
+      $('#login_form').hide();
+      $('#login_panel > p').html('Loading, please wait...');
       $('#login_form').submit();
     }
   }
