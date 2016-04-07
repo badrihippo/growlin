@@ -1,4 +1,4 @@
-{% macro render_item(item, returnable=False, borrow_date=None) -%}
+{% macro render_item(item, returnable=False, borrow_date=None, now=None, current_user=None) -%}
 <div class="collection-item avatar">
   <img src="../../static/img/book.png" alt="" class="circle">
   <!-- 
@@ -16,9 +16,8 @@
     </span>
   {%- endif %}
   {% if borrow_date or item.borrow_current.borrow_date %}
-  <p><i>{{ borrow_date or item.borrow_current.borrow_date}}</i><br>
+  <p style="color: #7F7F7F;"><span class="tooltipped" data-tooltip="{{ borrow_date or item.borrow_current.borrow_date }}" data-position="bottom">borrowed {{ pretty_date(borrow_date or item.borrow_current.borrow_date) }}</span></p>
   {%- endif %}
-  </p>
   {% if returnable -%}
   <a href="{{ url_for('user_return', borrowid=item.id) }}" class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Return">
     <i class="material-icons" style="font-size:40px">done</i>
