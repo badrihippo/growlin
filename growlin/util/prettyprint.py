@@ -11,7 +11,11 @@ def pretty_date(then, now=None, birthday=None):
             age = then.year-birthday.year
             return 'on your %dth birthday' % age
     else:
-        if delta < timedelta(0, 3600):
+        if delta < timedelta(0, 60):
+            return 'just now'
+        elif delta < timedelta(0, 119):
+            return 'a minute ago'
+        elif delta < timedelta(0, 3600):
             return '%d minutes ago' % (delta.seconds/60)
         elif delta < timedelta(0, 3900):
             return 'about an hour ago'
