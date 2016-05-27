@@ -3,11 +3,7 @@ from .util.widgets import AddModelSelect2Widget
 from .app import app
 from .auth import Permission, RoleNeed
 from .models import *
-
-if app.config['GROWLIN_USE_PEEWEE']:
-    from flask.ext.admin.contrib.peewee import ModelView
-else:
-    from flask.ext.admin.contrib.mongoengine import ModelView
+from flask.ext.admin.contrib.mongoengine import ModelView
 
 admin = Admin(app, template_mode='bootstrap3')
 
@@ -32,13 +28,8 @@ class AdminModelUser(BaseModelView):
     column_list = ('username', 'name', 'group', 'active')
     column_searchable_list = ['username', 'name']
 
-# Helper function for efficiency during mongo/peewee switching
-if app.config['GROWLIN_USE_PEEWEE']:
-    def _check_unique_accession(accession):
-        return Item.select().where(Item.accession == accession).count() == 0
-else:
-    def _check_unique_accession(accession):
-        return Item.objects.filter(accession=accession).count() == 0
+def _check_unique_accession(accession):
+    return Item.objects.filter(accession=accession).count() == 0
 
 class AdminModelPublication(BaseModelView):
     form_excluded_columns = ['borrow_current']
@@ -144,62 +135,8 @@ class AdminModelBorrowing(BaseModelView):
     }
 
 admin.add_view(AdminModelPublication(Item, name='All Items', category='Registry'))
-
-if app.config['GROWLIN_USE_PEEWEE']:
-    class AdminModelTypeItem(BaseModelView):
-        item_type = 'item'
-        def get_query(self):
-            try:
-                my_type = ItemType.get(name=self.item_type)
-                return self.model.select().where(self.model.item_type == my_type)
-            except ItemType.DoesNotExist:
-                print 'Warning: Returning all items'
-                return self.model.select()
-    class AdminModelBookTypeItem(AdminModelTypeItem, AdminModelBookItem):
-        item_type = 'book'
-        form_ajax_refs = {
-        'publication_publisher': {
-            'fields': ['name'],
-            'page_size': 10
-        },
-        'publication_place': {
-            'fields': ['name'],
-            'page_size': 10
-        },
-        'author': {
-            'fields': ['name'],
-            'page_size': 10
-            },
-        'editor': {
-            'fields': ['name'],
-            'page_size': 10
-        },
-        'illustrator': {
-            'fields': ['name'],
-            'page_size': 10
-        },
-        'campus_location': {
-            'fields': ['name'],
-            'page_size': 5
-        },
-        'promo_location': {
-            'fields': ['name'],
-            'page_size': 5
-        },
-        'price_currency': {
-            'fields': ['name'],
-            'page_size': 5
-        },
-        }
-    class AdminModelPeriodicalTypeItem(AdminModelTypeItem):
-        item_type = 'periodical'
-
-    admin.add_view(AdminModelBookTypeItem(model=BookItem, name='Books', category='Registry'))
-    admin.add_view(AdminModelPeriodicalTypeItem(model=PeriodicalItem, name='Periodicals', category='Registry'))
-
-else:
-    admin.add_view(AdminModelBookItem(BookItem, name='Books', category='Registry'))
-    admin.add_view(AdminModelPublication(PeriodicalItem, name='Periodicals', category='Registry'))
+admin.add_view(AdminModelBookItem(BookItem, name='Books', category='Registry'))
+admin.add_view(AdminModelPublication(PeriodicalItem, name='Periodicals', category='Registry'))
 
 admin.add_view(AdminModelUser(User, name='Users', category='Accounts'))
 admin.add_view(BaseModelView(UserGroup, name='Groups', category='Accounts'))
